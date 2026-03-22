@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qg.dormrepair.mapper.RepairOrderDao">
+
+    <update id="update">
+        update repair_order
+        <set>
+        <if test="status != null">status = #{status},</if>
+        <if test="updateTime != null">update_time = #{updateTime},</if>
+        <if test="priority != null">priority = #{priority},</if>
+        <if test="description != null">description = #{description},</if>
+        <if test="deviceType != null">device_type = #{deviceType}</if>
+        </set>
+        where id = #{id}
+    </update>
+    <!-- 多条件查询 - 返回列表 VO -->
+    <select id="selectByCondition" resultType="com.qg.dormrepair.vo.RepairListVO">
+        SELECT
+        id, device_type, description, status, priority,
+        dorm_building, dorm_room, create_time
+        FROM repair_order
+        <where>
+            <!-- 按状态查询 -->
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+
+            <!-- 按楼栋查询 -->
+            <if test="dormBuilding != null and dormBuilding != ''">
+                AND dorm_building = #{dormBuilding}
+            </if>
+
+            <!-- 按时间范围查询 -->
+            <if test="startTime != null">
+                AND create_time >= #{startTime}
+            </if>
+            <if test="endTime != null">
+                AND create_time &lt;= #{endTime}
+            </if>
+
+            <!-- 按优先级查询 -->
+            <if test="priority != null">
+                AND priority = #{priority}
+            </if>
+
+            <!-- 按设备类型查询 -->
+            <if test="deviceType != null">
+                AND device_type = #{deviceType}
+            </if>
+
+            <!-- 按学生账号查询 -->
+            <if test="studentAccount != null and studentAccount != ''">
+                AND student_account = #{studentAccount}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+        LIMIT #{pageNum}, #{pageSize}
+    </select>
+
+    <!-- 多条件查询 - 统计总数（分页用） -->
+    <select id="countByCondition" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM repair_order
+        <where>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+            <if test="dormBuilding != null and dormBuilding != ''">
+                AND dorm_building = #{dormBuilding}
+            </if>
+            <if test="startTime != null">
+                AND create_time &gt;= #{startTime}
+            </if>
+            <if test="endTime != null">
+                AND create_time &lt;= #{endTime}
+            </if>
+            <if test="priority != null">
+                AND priority = #{priority}
+            </if>
+            <if test="deviceType != null">
+                AND device_type = #{deviceType}
+            </if>
+            <if test="studentAccount != null and studentAccount != ''">
+                AND student_account = #{studentAccount}
+            </if>
+        </where>
+    </select>
+</mapper>
