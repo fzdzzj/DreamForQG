@@ -1,0 +1,42 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/dorm_repair?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&connectTimeout=5000&socketTimeout=5000
+    username: root
+    password: 1234
+
+    # HikariCP 连接池配置
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 10000  # 连接超时 10 秒
+      idle-timeout: 300000
+      max-lifetime: 900000
+
+mybatis:
+  ## 配置mapper.xml文件位置
+  mapper-locations: classpath:mapper/*.xml
+  ## 配置实体类包名
+  type-aliases-package: com.qg.dormrepair.pojo
+  configuration:
+    ## 开启驼峰命名
+    map-underscore-to-camel-case: true
+    ## 配置日志
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    ## 自动映射字段
+    auto-mapping-behavior: FULL
+
+#配置事务管理日志级别
+logging:
+  level:
+    ##项目自身代码输出 DEBUG 级别日志（最详细）
+    com.qg.dormrepair: debug
+    ##Spring 框架只输出 WARN 及以上级别日志
+    org.springframework: debug
+    ##MyBatis 框架只输出 WARN 及以上级别日志，只看sql，不看框架细节
+    org.mybatis: debug
+
+

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.qg.dormrepair.mapper.MessageDao">
+
+    <!-- 查询用户消息列表（分页） -->
+    <select id="selectByAccountWithPage" resultType="com.qg.dormrepair.pojo.Message">
+        SELECT id, user_account, title, content, type, is_read, related_id, create_time
+        FROM message
+        WHERE user_account = #{userAccount}
+        <if test="isRead != null">
+            AND is_read = #{isRead}
+        </if>
+        ORDER BY is_read ASC, create_time DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+</mapper>
