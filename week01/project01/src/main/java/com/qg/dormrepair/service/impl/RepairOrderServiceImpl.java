@@ -2,8 +2,7 @@ package com.qg.dormrepair.service.impl;
 
 import com.qg.dormrepair.dto.CreateOrderDTO;
 import com.qg.dormrepair.dto.OrderQueryDTO;
-import com.qg.dormrepair.enums.DeviceType;
-import com.qg.dormrepair.enums.RepairOrderStatus;
+import com.qg.dormrepair.enums.*;
 import com.qg.dormrepair.exception.BusinessException;
 import com.qg.dormrepair.mapper.RepairOrderDao;
 import com.qg.dormrepair.mapper.UserDao;
@@ -11,6 +10,7 @@ import com.qg.dormrepair.pojo.RepairOrder;
 import com.qg.dormrepair.service.MessageService;
 import com.qg.dormrepair.service.RepairOrderService;
 import com.qg.dormrepair.util.CurrentHolder;
+import com.qg.dormrepair.util.RegexUtil;
 import com.qg.dormrepair.vo.PageResult;
 import com.qg.dormrepair.vo.RepairListVO;
 import com.qg.dormrepair.vo.RepairOrderVO;
@@ -93,10 +93,8 @@ public class RepairOrderServiceImpl implements RepairOrderService {
         }
         log.info("创建报修单成功,学生账号:{}",account);
 
-        List<String> admins=userDao.findByRole('2');
-        for(String admin:admins){
-            messageService.sendMessage(admin, "有新的报修单需要处理", "学生"+account+"提交了报修单",'2',repairOrder.getId());
-        }
+        messageService.sendMessage(account, "报修单提交成功", "您已成功提交报修单，请耐心等待处理", MessageType.REPAIR.getCode());
+        messageService.sendToRole(Role.ADMIN.getCode(), "有新的报修单", "请及时处理", MessageType.REPAIR.getCode());
         log.info("发送报修单消息成功,学生账号:{}",account);
     }
     /**
@@ -125,7 +123,7 @@ public class RepairOrderServiceImpl implements RepairOrderService {
      * <p>
      * 核心步骤：
      * 1. 调用DAO层查询订单信息；
-     * 2. 订单不存在则抛业务异常（日志级别WARN）；
+     * 2. 订单不属于该学生或不存在则抛业务异常（日志级别WARN）；
      * 3. 权限控制：学生仅能查看本人订单，管理员可查看所有订单（DAO层实现）
      * </p>
      *
@@ -136,6 +134,12 @@ public class RepairOrderServiceImpl implements RepairOrderService {
     @Override
     public RepairOrderVO getOrderById(Long id) {
         log.debug("查询报修单，id：{}",id);
+        if(RegexUtil.isStudentId(CurrentHolder.getCurrentUser().getAccount())){
+            if(!repairOrderDao.isOrderBelongToUser(id,CurrentHolder.getCurrentUser().getAccount())){
+                log.warn("学生无权限查看该订单,id：{}",id);
+                throw new BusinessException("无权限查看该订单");
+            }
+        }
         RepairOrder order=repairOrderDao.findById(id);
         if(order==null){
             log.warn("报修单不存在,id：{}",id);
@@ -218,14 +222,14 @@ public class RepairOrderServiceImpl implements RepairOrderService {
         String deviceTypeName= DeviceType.getDeviceName(deviceType.charAt(0));
         messageService.sendMessage(order.getStudentAccount(),"报修单状态更新",
                 "您的报修单"+statusName+"\n设备类型："+deviceTypeName,
-                 '2', id);
+                 MessageType.REPAIR.getCode(), id);
         log.info("发送报修单状态更新消息成功,学生账号:{}",order.getStudentAccount());
     }
     /**
      * 取消订单的实现逻辑（仅学生可用，且订单为待维修状态）
      * <p>
      * 核心步骤：
-     * 1. 校验订单是否存在（不存在则抛业务异常，日志级别WARN）；
+     * 1. 校验订单是否属于该学生并存在（不存在则抛业务异常，日志级别WARN）；
      * 2. 将订单状态更新为「已取消」；
      * 3. 提交更新（受事务控制），更新失败则抛业务异常（日志级别ERROR）
      * </p>
@@ -236,7 +240,11 @@ public class RepairOrderServiceImpl implements RepairOrderService {
     @Transactional(rollbackFor = Exception.class)
     public void cancelOrder(Long id) {
         log.info("取消报修单,ID:{}",id);
-        //1. 校验订单是否存在（不存在则抛业务异常，日志级别WARN）；
+        //1. 校验订单是否属于该学生并存在（不存在则抛业务异常，日志级别WARN）；
+        if(!repairOrderDao.isOrderBelongToUser(id,CurrentHolder.getCurrentUser().getAccount())){
+            log.warn("学生无权限取消该订单,id:{}",id);
+            throw new BusinessException("学生无权限取消该订单");
+        }
         RepairOrder order=repairOrderDao.findById(id);
         if(order==null){
             log.warn("报修单不存在,id:{}",id);
@@ -298,6 +306,22 @@ public class RepairOrderServiceImpl implements RepairOrderService {
         }
         return vos;
     }
+    public PageResult<RepairListVO> queryOrders(OrderQueryDTO queryDTO) {
+        log.info("多条件查询报修单，条件：{}", queryDTO);
+
+        // 计算分页偏移量
+        int offset = (queryDTO.getPageNum() - 1) * queryDTO.getPageSize();
+        queryDTO.setPageNum(offset);
+
+        // 查询列表
+        List<RepairListVO> list = repairOrderDao.selectByCondition(queryDTO);
+
+        // 查询总数
+        Long total = repairOrderDao.countByCondition(queryDTO);
+
+        // 返回分页结果
+        return new PageResult<>(list, total, queryDTO.getPageNum(), queryDTO.getPageSize());
+    }
 
     private RepairListVO convertToListVO(RepairOrder order) {
         if (order == null) {
@@ -334,20 +358,5 @@ public class RepairOrderServiceImpl implements RepairOrderService {
         vo.setUpdateTime(order.getUpdateTime());
         return vo;
     }
-    public PageResult<RepairListVO> queryOrders(OrderQueryDTO queryDTO) {
-        log.info("多条件查询报修单，条件：{}", queryDTO);
 
-        // 计算分页偏移量
-        int offset = (queryDTO.getPageNum() - 1) * queryDTO.getPageSize();
-        queryDTO.setPageNum(offset);
-
-        // 查询列表
-        List<RepairListVO> list = repairOrderDao.selectByCondition(queryDTO);
-
-        // 查询总数
-        Long total = repairOrderDao.countByCondition(queryDTO);
-
-        // 返回分页结果
-        return new PageResult<>(list, total, queryDTO.getPageNum(), queryDTO.getPageSize());
-    }
 }

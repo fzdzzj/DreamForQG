@@ -82,4 +82,18 @@ public class GlobalExceptionHandler {
         log.error("服务器异常：{}",e.getMessage());
         return Result.error("系统繁忙，请稍后重试");
     }
+    /**
+     * 处理JWT异常
+     * <p>
+     * 捕获JWT异常（如Token解析失败、Token过期等），
+     * 返回对应的错误码和错误信息
+     * </p>
+     * @param e JwtException JWT异常对象，包含错误码和错误消息
+     * @return 统一响应结果，状态码为JWT异常码，消息为JWT异常描述
+     */
+    @ExceptionHandler(JwtException.class)
+    public Result<Void> handleJwtException(JwtException e){
+        log.warn("JWT异常：{}",e.getMessage());
+        return Result.error(e.getCode(),e.getMessage());
+    }
 }

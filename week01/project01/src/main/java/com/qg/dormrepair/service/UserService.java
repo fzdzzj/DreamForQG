@@ -34,11 +34,13 @@ public interface UserService {
      * 验证旧密码的正确性，验证通过后加密新密码并更新到数据库，
      * 仅允许修改当前登录用户的密码，不支持跨账号修改
      * </p>
+     *
      * @param oldPwd 原登录密码（明文，后端会加密后与数据库存储的密码比对）
      * @param newPwd 新登录密码（需符合密码正则规则，后端加密后存储）
+     * @return
      * @throws BusinessException 旧密码错误/新密码格式错误抛出对应业务异常
      */
-    void updatePassword(String oldPwd,String newPwd);
+    String updatePassword(String oldPwd, String newPwd);
     /**
      * 绑定当前登录学生的宿舍信息
      * @throws BusinessException 非学生角色/楼栋/房间号为空时抛出对应业务异常

@@ -1,7 +1,9 @@
 package com.qg.dormrepair.exception;
 
 import lombok.Getter;
-
+/**
+ * JWT异常类
+ */
 @Getter
 public class JwtException extends RuntimeException{
     private final Integer code;

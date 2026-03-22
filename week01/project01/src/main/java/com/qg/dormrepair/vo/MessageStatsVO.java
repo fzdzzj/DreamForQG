@@ -3,7 +3,9 @@ package com.qg.dormrepair.vo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+/**
+ * 消息统计VO
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

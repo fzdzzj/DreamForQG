@@ -1,12 +1,16 @@
 package com.qg.dormrepair.controller;
 
+import com.qg.dormrepair.constants.RegexConstants;
 import com.qg.dormrepair.dto.OrderQueryDTO;
 import com.qg.dormrepair.dto.OrderStatusDTO;
+import com.qg.dormrepair.enums.RepairOrderStatus;
 import com.qg.dormrepair.pojo.Result;
 import com.qg.dormrepair.service.RepairOrderService;
 import com.qg.dormrepair.vo.PageResult;
 import com.qg.dormrepair.vo.RepairListVO;
 import com.qg.dormrepair.vo.RepairOrderVO;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
@@ -41,6 +45,7 @@ public class AdminController {
      */
     @GetMapping("/orders")
     public Result<List<RepairListVO>> getAllOrders() {
+        log.info("查询所有订单");
         return Result.success(repairOrderService.getAllOrders());
     }
 
@@ -55,6 +60,7 @@ public class AdminController {
      */
     @GetMapping("/order/{id}")
     public Result<RepairOrderVO> getOrderDetail(@PathVariable Long id) {
+        log.info("查询订单详情");
         return Result.success(repairOrderService.getOrderById(id));
     }
 
@@ -69,8 +75,9 @@ public class AdminController {
      * @return 统一响应结果，数据体为指定状态的订单列表
      */
     @GetMapping("/orders/by-status")
-    public Result<List<RepairListVO>> getOrdersByStatus(@RequestParam Character status) {
-        return Result.success(repairOrderService.getOrdersByStatus(status));
+    public Result<List<RepairListVO>> getOrdersByStatus(@RequestParam  @Pattern(regexp = RegexConstants.ORDER_STATUS, message = "订单状态格式错误")String  status) {
+        log.info("按状态筛选订单，状态:{}", RepairOrderStatus.getStatus(status.charAt(0)));
+        return Result.success(repairOrderService.getOrdersByStatus(status.charAt(0)));
     }
 
     /**
@@ -86,6 +93,7 @@ public class AdminController {
     @PutMapping("/order/{id}/status")
     public Result<Void> updateOrderStatus(@PathVariable Long id,
                                            @Validated @RequestBody OrderStatusDTO orderStatusDTO) {
+        log.info("修改订单状态，id:{},状态:{}",id,RepairOrderStatus.getStatus(orderStatusDTO.getStatus().charAt(0)));
         repairOrderService.updateOrderStatus(id, orderStatusDTO.getStatus().charAt(0));
         return Result.success();
     }
@@ -101,6 +109,7 @@ public class AdminController {
      */
     @DeleteMapping("/order/{id}")
     public Result<Void> deleteOrder(@PathVariable Long id) {
+        log.info("删除订单，id:{}",id);
         repairOrderService.deleteOrder(id);
         return Result.success();
     }
@@ -116,6 +125,7 @@ public class AdminController {
      */
     @GetMapping("/orders/by-dorm")
     public Result<List<RepairListVO>> getOrdersByDorm(@RequestParam String dormBuilding) {
+        log.info("按宿舍筛选订单，宿舍:{}", dormBuilding);
         return Result.success(repairOrderService.getOrdersByDorm(dormBuilding));
     }
 
@@ -130,6 +140,7 @@ public class AdminController {
     @PostMapping("/orders/query")
     public Result<PageResult<RepairListVO>> queryOrders(
             @RequestBody OrderQueryDTO queryDTO) {
+        log.info("多条件查询订单，参数:{}", queryDTO);
         return Result.success(repairOrderService.queryOrders(queryDTO));
     }
 }

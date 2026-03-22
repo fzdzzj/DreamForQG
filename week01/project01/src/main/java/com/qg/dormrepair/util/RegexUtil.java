@@ -2,7 +2,9 @@ package com.qg.dormrepair.util;
 
 import com.qg.dormrepair.constants.RegexConstants;
 import lombok.extern.slf4j.Slf4j;
-
+/**
+ * 正则工具类
+ */
 @Slf4j
 public class RegexUtil {
     private RegexUtil() {
