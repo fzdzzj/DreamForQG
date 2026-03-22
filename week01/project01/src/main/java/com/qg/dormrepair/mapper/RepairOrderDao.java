@@ -6,7 +6,9 @@ import com.qg.dormrepair.vo.RepairListVO;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
-
+/**
+ * 报修单持久层接口
+ */
 public interface RepairOrderDao {
     @Select("SELECT device_type FROM repair_order WHERE id = #{id}")
     String getDeviceType(Long id);
@@ -60,4 +62,7 @@ public interface RepairOrderDao {
 
     // ✅ 统计总数
     Long countByCondition(OrderQueryDTO queryDTO);
+
+    @Select("SELECT id FROM repair_order WHERE id = #{id} AND student_account = #{account}")
+    boolean isOrderBelongToUser(Long id, String account);
 }

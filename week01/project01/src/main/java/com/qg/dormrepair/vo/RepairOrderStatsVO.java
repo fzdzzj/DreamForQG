@@ -1,5 +1,7 @@
 package com.qg.dormrepair.vo;
-
+/**
+ * 报修单统计 VO
+ */
 public class RepairOrderStatsVO {
     private String dormBuilding;      // 楼栋
     private Long totalCount;          // 总数量

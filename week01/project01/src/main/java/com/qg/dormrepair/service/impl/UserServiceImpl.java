@@ -3,7 +3,6 @@ package com.qg.dormrepair.service.impl;
 import com.qg.dormrepair.dto.DormDTO;
 import com.qg.dormrepair.dto.LoginDTO;
 import com.qg.dormrepair.dto.RegisterDTO;
-import com.qg.dormrepair.enums.Role;
 import com.qg.dormrepair.exception.BusinessException;
 import com.qg.dormrepair.mapper.UserDao;
 import com.qg.dormrepair.pojo.User;
@@ -74,7 +73,6 @@ public class UserServiceImpl implements UserService {
         // 3. 组装JWT令牌（Claims包含账号、角色、宿舍楼栋、房间号，用于后续接口权限校验）
         Map<String, Object> claims = new HashMap<>();
         claims.put("account", user.getAccount());
-        claims.put("role", user.getRole());
         claims.put("dormBuilding", user.getDormBuilding());
         claims.put("dormRoom", user.getDormRoom());
         String token = JwtUtils.generateJwt(claims);
@@ -131,13 +129,15 @@ public class UserServiceImpl implements UserService {
      * 3. 加密新密码并更新用户信息；
      * 4. 受事务控制，更新失败则回滚并抛异常
      * </p>
+     *
      * @param oldPwd 原密码（明文）
      * @param newPwd 新密码（明文）
+     * @return
      * @throws BusinessException 旧密码错误/更新失败时抛出
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void updatePassword(String oldPwd, String newPwd) {
+    public String updatePassword(String oldPwd, String newPwd) {
         // 1. 从CurrentHolder获取当前登录用户账号（ThreadLocal存储）
         String account = CurrentHolder.getCurrentUser().getAccount();
         log.info("用户修改密码尝试,账号:{}", account);
@@ -156,6 +156,17 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException("修改密码失败");
         }
         log.info("修改密码成功,账号:{}", account);
+        CurrentHolder.remove();
+        log.debug("  ThreadLocal 已清理");
+        CurrentHolder.setCurrentUser(account, user.getDormBuilding(), user.getDormRoom());
+        log.info("  ThreadLocal 绑定成功，账号：{}", account);
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("account", user.getAccount());
+        claims.put("dormBuilding", user.getDormBuilding());
+        claims.put("dormRoom", user.getDormRoom());
+        String token = JwtUtils.generateJwt(claims);
+        return token;
     }
     /**
      * 绑定宿舍信息的具体实现逻辑
@@ -218,7 +229,6 @@ public class UserServiceImpl implements UserService {
         vo.setId(user.getId());
         vo.setAccount(user.getAccount());
         vo.setRole(user.getRole());
-        vo.setRoleName(Role.getRole(user.getRole()));
         vo.setDormBuilding(user.getDormBuilding());
         vo.setDormRoom(user.getDormRoom());
         return vo;

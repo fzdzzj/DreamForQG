@@ -15,5 +15,24 @@
         ORDER BY is_read ASC, create_time DESC
         LIMIT #{offset}, #{pageSize}
     </select>
+    <!-- 批量删除消息 -->
+    <delete id="deleteBatch">
+        DELETE FROM message
+        WHERE id IN
+        <foreach item="id" collection="messageIds" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        AND user_account = #{userAccount}
+    </delete>
+
+    <!-- 批量标记为已读 -->
+    <update id="markBatchAsRead">
+        UPDATE message SET is_read = '1'
+        WHERE id IN
+        <foreach item="id" collection="messageIds" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        AND user_account = #{userAccount}
+    </update>
 
 </mapper>

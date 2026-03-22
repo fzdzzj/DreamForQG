@@ -21,6 +21,7 @@ public class PasswordUtil {
 
             StringBuilder result = new StringBuilder();
             for (byte b : encryptedBytes) {
+                // 将字节转换为十六进制字符串
                 result.append(String.format("%02x", b));
             }
 

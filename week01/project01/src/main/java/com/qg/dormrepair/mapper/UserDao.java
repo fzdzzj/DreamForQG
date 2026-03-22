@@ -7,7 +7,9 @@ import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
-
+/**
+ * 用户数据访问接口
+ */
 public interface UserDao {
     //插入用户,注册
     @Insert("insert into user (account, pwd, role, dorm_building, dorm_room) values (#{account}, #{pwd}, #{role}, #{dormBuilding}, #{dormRoom})")
@@ -19,7 +21,6 @@ public interface UserDao {
     @Select("select * from user where account=#{account} and pwd=#{pwd}")
     User login(String account, String pwd);
     //修改用户信息,密码
-
     int update(User user);
 
     @Select("SELECT account from user where role='1'")

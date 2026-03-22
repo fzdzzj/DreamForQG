@@ -76,6 +76,7 @@ public class StudentController {
      */
     @GetMapping("/orders")
     public Result<List<RepairListVO>>getMyOrders(){
+        log.info("查询当前学生的所有报修订单");
         return Result.success(repairOrderService.getOrdersByAccount());
     }
     /**
@@ -89,6 +90,7 @@ public class StudentController {
      */
     @GetMapping("/order/{id}")
     public Result<RepairOrderVO> getOrderDetail(@PathVariable Long id){
+        log.info("查询报修单详情,ID:{}",id);
         return Result.success(repairOrderService.getOrderById(id));
     }
 
@@ -102,21 +104,9 @@ public class StudentController {
      */
     @PutMapping("/order/{id}/cancel")
     public Result<Void> cancelOrder(@PathVariable Long id){
+        log.info("取消报修单,ID:{}",id);
         repairOrderService.cancelOrder(id);
         return Result.success();
     }
-    /**
-     * 修改学生登录密码
-     * <p>
-     * 学生修改自己的登录密码，入参需通过校验确保新密码格式合法，
-     * 后端会先验证旧密码的正确性，验证通过后再更新新密码
-     * </p>
-     * @param passwordDTO 密码修改DTO（请求体），包含旧密码和新密码
-     * @return 统一响应结果，无返回数据
-     */
-    @PutMapping("/password")
-    public Result<Void> updatePassword(@Validated @RequestBody PasswordDTO passwordDTO){
-        userService.updatePassword(passwordDTO.getOldPwd(), passwordDTO.getNewPwd());
-        return Result.success();
-    }
+
 }

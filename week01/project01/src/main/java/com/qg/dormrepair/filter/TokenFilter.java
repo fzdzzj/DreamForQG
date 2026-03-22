@@ -1,6 +1,7 @@
 // filter/TokenFilter.java
 package com.qg.dormrepair.filter;
 
+import com.qg.dormrepair.enums.Role;
 import com.qg.dormrepair.util.CurrentHolder;
 import com.qg.dormrepair.util.JwtUtils;
 import com.qg.dormrepair.util.RegexUtil;
@@ -15,6 +16,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 
+/**
+ * 过滤器实现类
+ */
 @Slf4j
 @WebFilter(filterName = "TokenFilter", urlPatterns = "/api/*")
 public class TokenFilter implements Filter {
@@ -30,19 +34,28 @@ public class TokenFilter implements Filter {
                          FilterChain filterChain)
             throws IOException, ServletException {
 
-        long startTime = System.currentTimeMillis();
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
-
+        //获取请求路径和方法
         String requestURI = request.getRequestURI();
         String method = request.getMethod();
-
         log.info("===== [TokenFilter] 请求开始 =====");
-        log.info("  时间戳：{} | 方法：{} | 路径：{}", startTime, method, requestURI);
 
         // ==================== 1. 公共接口放行（不需要 Token）====================
-        if (isPublicEndpoint(requestURI)) {
+        try{if (isPublicEndpoint(requestURI)) {
             log.info("  类型：公共接口，直接放行");
+            String token = request.getHeader("Authorization");
+            if(token!=null){
+                if (token.startsWith("Bearer ")) {
+                    token = token.substring(7);
+                    log.debug("  去除 Bearer 后的 Token: {}", token);
+                }
+                Claims claims = JwtUtils.parseJWT(token);
+                String account = claims.get("account", String.class);
+                String dormBuilding = claims.get("dormBuilding", String.class);
+                String dormRoom = claims.get("dormRoom", String.class);
+                CurrentHolder.setCurrentUser(account,dormBuilding,dormRoom);
+            }
             filterChain.doFilter(request, response);
             return;
         }
@@ -52,11 +65,10 @@ public class TokenFilter implements Filter {
         log.debug("  Authorization: {}", token);
 
         if (token == null || token.trim().isEmpty()) {
-            log.warn("  ⚠️ 令牌为空，返回 401");
+            log.warn(" 令牌为空，返回 401");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json;charset=UTF-8");
             response.getWriter().write("{\"code\":401,\"message\":\"未登录，请先登录\",\"data\":null}");
-            logFilterEnd(startTime, "令牌为空");
             return;
         }
 
@@ -67,13 +79,13 @@ public class TokenFilter implements Filter {
         }
 
         // ==================== 4. 验证 token ====================
-        try {
+
             Claims claims = JwtUtils.parseJWT(token);
             String account = claims.get("account", String.class);
             String dormBuilding = claims.get("dormBuilding", String.class);
             String dormRoom = claims.get("dormRoom", String.class);
             CurrentHolder.setCurrentUser(account,dormBuilding,dormRoom);
-            log.info("  ✅ ThreadLocal 设置成功，账号：", account);
+            log.info("  ThreadLocal 设置成功，账号：{}", account);
             Character role;
             if(RegexUtil.isAdminId( account)){
                 role = '2';
@@ -82,46 +94,42 @@ public class TokenFilter implements Filter {
             }
             // ==================== 5. 角色权限验证 ====================
             if (!checkRolePermission(requestURI, method, role)) {
-                log.warn("  ⚠️ 权限不足，角色：{}，路径：{}", role, requestURI);
+                log.warn(" 权限不足，角色：{}，路径：{}", role, requestURI);
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 response.setContentType("application/json;charset=UTF-8");
                 response.getWriter().write("{\"code\":403,\"message\":\"权限不足，无法访问此接口\",\"data\":null}");
-                logFilterEnd(startTime, "权限不足");
                 return;
             }
             log.info("  权限验证通过，角色：{}", role);
 
         } catch (ExpiredJwtException e) {
-            log.warn("  ⚠️ Token 已过期");
+            log.warn("Token 已过期");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json;charset=UTF-8");
             response.getWriter().write("{\"code\":401,\"message\":\"登录已过期，请重新登录\",\"data\":null}");
-            logFilterEnd(startTime, "Token 过期");
             return;
 
         } catch (MalformedJwtException e) {
-            log.warn("  ⚠️ Token 格式错误");
+            log.warn("Token 格式错误");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json;charset=UTF-8");
             response.getWriter().write("{\"code\":401,\"message\":\"Token 无效\",\"data\":null}");
-            logFilterEnd(startTime, "Token 格式错误");
             return;
 
         } catch (Exception e) {
-            log.error("  ❌ Token 验证异常", e);
+            log.error("Token 验证异常", e);
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json;charset=UTF-8");
             response.getWriter().write("{\"code\":401,\"message\":\"令牌不合法\",\"data\":null}");
-            logFilterEnd(startTime, "Token 验证异常");
             return;
         }
 
         try {
             filterChain.doFilter(request, response);
-            logFilterEnd(startTime, "成功");
+            log.info("成功放行");
         } finally {
             CurrentHolder.remove();
-            log.debug("  🧹 ThreadLocal 已清理");
+            log.debug("  ThreadLocal 已清理");
         }
     }
 
@@ -129,11 +137,13 @@ public class TokenFilter implements Filter {
      * 判断是否为公共接口（不需要 Token）
      */
     private boolean isPublicEndpoint(String requestURI) {
-        // 登录/注册接口
         if (requestURI.contains("/api/auth/login")) {
             return true;
         }
         if (requestURI.contains("/api/auth/register")) {
+            return true;
+        }
+        if (requestURI.contains("/api/auth/password")) {
             return true;
         }
         return false;
@@ -152,9 +162,9 @@ public class TokenFilter implements Filter {
             return false;
         }
 
-        // ==================== 学生角色（role = '1'）====================
-        if (role == '1') {
-            // ✅ 学生专属接口
+        // ==================== 学生角色（role = Role.STUDENT.getCode()）====================
+        if (role == Role.STUDENT.getCode()) {
+            // 学生专属接口
             if (requestURI.startsWith("/api/student/")) {
                 // 创建报修单
                 if ("/api/student/order".equals(requestURI) && "POST".equals(method)) {
@@ -176,10 +186,6 @@ public class TokenFilter implements Filter {
                 if ("/api/student/dorm".equals(requestURI) && "PUT".equals(method)) {
                     return true;
                 }
-                // 修改密码
-                if ("/api/student/password".equals(requestURI) && "PUT".equals(method)) {
-                    return true;
-                }
                 return false;
             }
 
@@ -197,8 +203,8 @@ public class TokenFilter implements Filter {
             return false;
         }
 
-        // ==================== 管理员角色（role = '2'）====================
-        if (role == '2') {
+        // ==================== 管理员角色（role = Role.ADMIN.getCode()）====================
+        if (role == Role.ADMIN.getCode()) {
             //  管理员专属接口
             if (requestURI.startsWith("/api/admin/")) {
                 // 查看所有报修单
@@ -232,16 +238,10 @@ public class TokenFilter implements Filter {
                 return true; // 其他/admin/接口也允许
             }
 
-            // ✅ 消息接口（管理员可访问）
+            // 消息接口（管理员可访问）
             if (requestURI.startsWith("/api/message/")) {
                 return true;
             }
-
-            // ✅ 修改密码（公共）
-            if ("/api/student/password".equals(requestURI) && "PUT".equals(method)) {
-                return true;
-            }
-
             //  学生专属接口（管理员禁止）
             if (requestURI.startsWith("/api/student/")) {
                 return false;
@@ -253,16 +253,6 @@ public class TokenFilter implements Filter {
 
         // 未知角色，拒绝访问
         return false;
-    }
-
-    /**
-     * 记录 Filter 执行结束日志
-     */
-    private void logFilterEnd(long startTime, String status) {
-        long endTime = System.currentTimeMillis();
-        long duration = endTime - startTime;
-        log.info("===== [TokenFilter] 请求结束 =====");
-        log.info("  结束时间戳：{} | 耗时：{}ms | 状态：{}", endTime, duration, status);
     }
 
     @Override

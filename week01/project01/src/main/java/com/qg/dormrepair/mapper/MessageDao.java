@@ -5,7 +5,9 @@ import com.qg.dormrepair.pojo.Message;
 import com.qg.dormrepair.vo.MessageVO;
 import org.apache.ibatis.annotations.*;
 import java.util.List;
-
+/**
+ * 消息数据访问接口
+ */
 public interface MessageDao {
 
     // 插入消息
@@ -20,6 +22,7 @@ public interface MessageDao {
             "ORDER BY is_read ASC, create_time DESC")
     List<Message> selectByAccount(String userAccount);
 
+    // 查询用户消息列表（分页）
     List<Message> selectByAccountWithPage(@Param("userAccount") String userAccount,
                                           @Param("isRead") Character isRead,
                                           @Param("offset") int offset,
@@ -54,4 +57,11 @@ public interface MessageDao {
     @Select("SELECT id, user_account, title, content, type, is_read, related_id, create_time " +
             "FROM message WHERE id = #{id}")
     Message findById(Long id);
+    @Select("SELECT id FROM message WHERE id = #{messageId} AND user_account = #{userAccount}")
+    boolean isBelongToUser(Long messageId, String userAccount);
+
+    int deleteBatch(@Param("messageIds") List<Long> messageIds,
+                    @Param("userAccount") String userAccount);
+    int markBatchAsRead(@Param("messageIds") List<Long> messageIds,
+                        @Param("userAccount") String userAccount);
 }

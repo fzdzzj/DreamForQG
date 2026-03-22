@@ -2,7 +2,9 @@ package com.qg.dormrepair.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
+/**
+ * 设备类型枚举类
+ */
 @Getter
 @AllArgsConstructor
 public enum DeviceType {
@@ -18,11 +20,14 @@ public enum DeviceType {
     private final Character code;
     private final String name;
     public static String getDeviceName(Character code){
+        if(code==null){
+            return "未知设施类型";
+        }
         for(DeviceType deviceType : DeviceType.values()){
             if(deviceType.code.equals(code)){
                 return deviceType.name;
             }
         }
-        return null;
+        return "未知设施类型";
     }
 }

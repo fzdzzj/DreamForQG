@@ -37,6 +37,6 @@ logging:
     ##Spring 框架只输出 WARN 及以上级别日志
     org.springframework: debug
     ##MyBatis 框架只输出 WARN 及以上级别日志，只看sql，不看框架细节
-    org.mybatis: debug
+    org.mybatis: warn
 
 
