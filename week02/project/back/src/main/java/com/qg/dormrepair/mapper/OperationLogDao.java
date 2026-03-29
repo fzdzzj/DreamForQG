@@ -1,5 +1,8 @@
 package com.qg.dormrepair.mapper;
 
+import com.qg.dormrepair.annotation.AutoFill;
+import com.qg.dormrepair.constants.AutoFillConstant;
+import com.qg.dormrepair.enums.DataBaseOperationType;
 import com.qg.dormrepair.pojo.OperationLogEnity;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
@@ -16,6 +19,7 @@ public interface OperationLogDao {
     @Insert("INSERT INTO operation_log (user_account, operation, result, ip_address, create_time, request_uri, request_params) " +
             "VALUES (#{userAccount}, #{operation}, #{result}, #{ipAddress}, #{createTime}, #{requestUri}, #{requestParams})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
+    @AutoFill(DataBaseOperationType.INSERT)
     int insert(OperationLogEnity log);
 
     // 多条件查询

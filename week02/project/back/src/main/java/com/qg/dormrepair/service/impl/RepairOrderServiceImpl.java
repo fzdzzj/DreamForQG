@@ -84,8 +84,8 @@ public class RepairOrderServiceImpl implements RepairOrderService {
         repairOrder.setDescription(orderDTO.getDescription());
         repairOrder.setPriority(orderDTO.getPriority());
         repairOrder.setStatus(RepairOrderStatus.WAIT_FOR_REPAIR.getCode());
-        repairOrder.setCreateTime(LocalDateTime.now());
-        repairOrder.setUpdateTime(LocalDateTime.now());
+//        repairOrder.setCreateTime(LocalDateTime.now());
+//        repairOrder.setUpdateTime(LocalDateTime.now());
 
         // 处理图片：前端传 List<String>，数据库存 JSON 字符串
         List<String> imageList = orderDTO.getImages();
@@ -251,7 +251,7 @@ public class RepairOrderServiceImpl implements RepairOrderService {
 
         // 更新订单信息
         order.setStatus(status);
-        order.setUpdateTime(LocalDateTime.now());
+//        order.setUpdateTime(LocalDateTime.now());
         int updateRows = repairOrderDao.update(order);
 
         if (updateRows <= 0) {
@@ -300,7 +300,7 @@ public class RepairOrderServiceImpl implements RepairOrderService {
 
         // 更新为已取消状态
         order.setStatus(RepairOrderStatus.CANCELED.getCode());
-        order.setUpdateTime(LocalDateTime.now());
+//        order.setUpdateTime(LocalDateTime.now());
         int updateRows = repairOrderDao.update(order);
 
         if (updateRows <= 0) {
@@ -429,7 +429,7 @@ public class RepairOrderServiceImpl implements RepairOrderService {
             order.setImages("[]");
         }
 
-        order.setUpdateTime(LocalDateTime.now());
+//        order.setUpdateTime(LocalDateTime.now());
 
         // 执行更新
         int updateRows = repairOrderDao.update(order);

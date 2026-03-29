@@ -1,6 +1,8 @@
 package com.qg.dormrepair.mapper;
 
+import com.qg.dormrepair.annotation.AutoFill;
 import com.qg.dormrepair.dto.OrderQueryDTO;
+import com.qg.dormrepair.enums.DataBaseOperationType;
 import com.qg.dormrepair.pojo.RepairOrder;
 import com.qg.dormrepair.vo.RepairListVO;
 import org.apache.ibatis.annotations.*;
@@ -53,8 +55,10 @@ public interface RepairOrderDao {
             "#{deviceType}, #{description}, #{status}, #{priority}, " +
             "#{createTime}, #{updateTime}, #{images})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
+    @AutoFill(DataBaseOperationType.INSERT)
     boolean insert(RepairOrder repairOrder);
     // 更新 - 需要完整 Entity
+    @AutoFill(DataBaseOperationType.UPDATE)
     int update(RepairOrder repairOrder);
 
     //  删除
