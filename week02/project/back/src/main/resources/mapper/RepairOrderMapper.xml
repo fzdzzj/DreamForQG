@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qg.dormrepair.mapper.RepairOrderDao">
+
+    <update id="update">
+        update repair_order
+        <set>
+            <if test="status != null">status = #{status},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="priority != null">priority = #{priority},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="deviceType != null">device_type = #{deviceType},</if>
+            <if test="images != null">images = #{images}</if>
+        </set>
+        where id = #{id}
+    </update>
+    <select id="selectByCondition" resultType="com.qg.dormrepair.vo.RepairListVO">
+        SELECT id, device_type, status, priority, dorm_building, dorm_room, create_time
+        FROM repair_order
+        <where>
+            <if test="queryDTO.id!=null">
+                AND id = #{queryDTO.id}
+            </if>
+            <!-- 这里必须加 queryDTO. 前缀！！！ -->
+            <if test="queryDTO.status != null and queryDTO.status != ''">
+                AND status = #{queryDTO.status}
+            </if>
+            <if test="queryDTO.deviceType != null and queryDTO.deviceType != ''">
+                AND device_type = #{queryDTO.deviceType}
+            </if>
+            <if test="queryDTO.dormBuilding != null and queryDTO.dormBuilding != ''">
+                AND REPLACE(dorm_building, ' ', '') LIKE CONCAT('%', REPLACE(#{queryDTO.dormBuilding}, ' ', ''), '%')
+            </if>
+            <if test="queryDTO.startTime != null">
+                AND create_time >= #{queryDTO.startTime}
+            </if>
+            <if test="queryDTO.endTime != null">
+                AND create_time &lt; #{queryDTO.endTime}
+            </if>
+        <if test="queryDTO.priority != null">
+            AND priority = #{queryDTO.priority}
+        </if>
+
+        <if test="queryDTO.dormRoom != null and queryDTO.dormRoom != ''">
+            AND dorm_room = #{queryDTO.dormRoom}
+        </if>
+
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="countByCondition" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM repair_order
+        <where>
+            <if test="queryDTO.id!=null">
+                AND id = #{queryDTO.id}
+            </if>
+            <if test="queryDTO.status != null">
+                AND status = #{queryDTO.status}
+            </if>
+            <if test="queryDTO.dormBuilding != null and queryDTO.dormBuilding != ''">
+                AND REPLACE(dorm_building, ' ', '') LIKE CONCAT('%', REPLACE(#{queryDTO.dormBuilding}, ' ', ''), '%')
+            </if>
+            <if test="queryDTO.startTime != null">
+                AND create_time &gt;= #{queryDTO.startTime}
+            </if>
+            <if test="queryDTO.endTime != null">
+                AND create_time &lt;= #{queryDTO.endTime}
+            </if>
+            <if test="queryDTO.priority != null">
+                AND priority = #{queryDTO.priority}
+            </if>
+            <if test="queryDTO.deviceType != null">
+                AND device_type = #{queryDTO.deviceType}
+            </if>
+
+        <if test="queryDTO.dormRoom != null and queryDTO.dormRoom != ''">
+            AND dorm_room = #{queryDTO.dormRoom}
+        </if>
+        </where>
+    </select>
+</mapper>
