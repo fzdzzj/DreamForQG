@@ -77,8 +77,6 @@ public class MessageServiceImpl implements MessageService {
         message.setType(type);
         message.setRelatedId(relatedId);
         message.setIsRead("2");
-        message.setCreateTime(LocalDateTime.now());
-
         // 保存消息
         int rows = messageDao.insert(message);
         if (rows <= 0) {

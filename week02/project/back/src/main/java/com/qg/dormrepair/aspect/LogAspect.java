@@ -89,7 +89,6 @@ public class LogAspect {
     private OperationLogEnity buildLogEntity(ProceedingJoinPoint joinPoint, OperationLog logAnnotation, HttpServletRequest request) {
         OperationLogEnity logEntity = new OperationLogEnity();
         logEntity.setOperation(logAnnotation.value());
-        logEntity.setCreateTime(LocalDateTime.now());
 
         // 设置当前操作人
         var currentUser = CurrentHolder.getCurrentUser();

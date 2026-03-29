@@ -1,6 +1,8 @@
 // mapper/MessageDao.java
 package com.qg.dormrepair.mapper;
 
+import com.qg.dormrepair.annotation.AutoFill;
+import com.qg.dormrepair.enums.DataBaseOperationType;
 import com.qg.dormrepair.pojo.Message;
 import com.qg.dormrepair.vo.MessageVO;
 import org.apache.ibatis.annotations.*;
@@ -16,6 +18,7 @@ public interface MessageDao {
     @Insert("INSERT INTO message (user_account, title, content, type, is_read, related_id, create_time) " +
             "VALUES (#{userAccount}, #{title}, #{content}, #{type}, #{isRead}, #{relatedId}, #{createTime})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
+    @AutoFill(DataBaseOperationType.INSERT)
     int insert(Message message);
 
 
