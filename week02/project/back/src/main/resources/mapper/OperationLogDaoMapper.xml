@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.qg.dormrepair.mapper.OperationLogDao">
+
+    <!-- 完整字段映射（已补全 request_uri / request_params） -->
+    <resultMap id="OperationLogResultMap" type="com.qg.dormrepair.pojo.OperationLogEnity">
+        <id column="id" property="id"/>
+        <result column="user_account" property="userAccount"/>
+        <result column="operation" property="operation"/>
+        <result column="result" property="result"/>
+        <result column="ip_address" property="ipAddress"/>
+        <result column="create_time" property="createTime"/>
+        <result column="request_uri" property="requestUri"/>
+        <result column="request_params" property="requestParams"/>
+    </resultMap>
+
+    <!-- 批量删除日志 -->
+    <delete id="deleteLogs">
+        delete from operation_log where id in
+        <foreach item="item" collection="array" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <!-- 多条件分页查询 -->
+    <select id="selectByCondition" resultMap="OperationLogResultMap">
+        select * from operation_log
+        <where>
+            <if test="userAccount != null">
+                and user_account = #{userAccount}
+            </if>
+            <if test="result != null">
+                and result = #{result}
+            </if>
+            <if test="startTime != null">
+                and create_time >= #{startTime}
+            </if>
+            <if test="endTime != null">
+                and create_time &lt;= #{endTime}
+            </if>
+        </where>
+        order by create_time desc
+        limit #{offset}, #{pageSize}
+    </select>
+
+    <!-- 统计总数 -->
+    <select id="countByCondition" resultType="java.lang.Long">
+        select count(*) from operation_log
+        <where>
+            <if test="userAccount != null">
+                and user_account = #{userAccount}
+            </if>
+            <if test="result != null">
+                and result = #{result}
+            </if>
+        </where>
+    </select>
+
+</mapper>
