@@ -5,6 +5,7 @@ import com.aliyun.oss.common.auth.CredentialsProviderFactory;
 import com.aliyun.oss.common.auth.EnvironmentVariableCredentialsProvider;
 import com.aliyun.oss.common.comm.SignVersion;
 import com.qg.dormrepair.config.AliyunOSSProperties;
+import com.qg.dormrepair.constants.MessageConstant;
 import com.qg.dormrepair.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -78,11 +79,11 @@ public class AliyunOSSOperator {
             return endpoint.split("://")[0] + "://" + bucketName + "." + endpoint.split("://")[1] + "/" + objectName;
 
         } catch (OSSException e) {
-            log.error("OSS服务异常，上传失败：{}", e.getMessage());
-            throw new BusinessException("OSS服务端异常（如权限不足、bucket不存在）：" + e.getErrorMessage());
+            log.error(MessageConstant.OSS_SERVICE_ERROR+"，上传失败：{}", e.getMessage());
+            throw new BusinessException(500,MessageConstant.OSS_SERVICE_ERROR + e.getErrorMessage());
         } catch (Exception e) {
-            log.error("图片上传失败：{}", e.getMessage());
-            throw new BusinessException("图片上传失败：" + e.getMessage());
+            log.error(MessageConstant.IMAGE_UPLOAD_FAILED+"：{}", e.getMessage());
+            throw new BusinessException(500,MessageConstant.IMAGE_UPLOAD_FAILED + e.getMessage());
         } finally {
             // 关闭OSS客户端，释放资源
             if (ossClient != null) {

@@ -1,6 +1,7 @@
 package com.qg.dormrepair.service.impl;
 
 import com.qg.dormrepair.config.JwtProperties;
+import com.qg.dormrepair.constants.MessageConstant;
 import com.qg.dormrepair.dto.BindDormDTO;
 import com.qg.dormrepair.dto.LoginDTO;
 import com.qg.dormrepair.dto.RegisterDTO;
@@ -87,13 +88,13 @@ public class UserServiceImpl implements UserService {
         User user = userDao.findByAccount(account);
         if (user == null) {
             log.warn("登录失败：账号不存在，账号：{}", account);
-            throw new BusinessException("账号或密码错误");
+            throw new BusinessException(401,MessageConstant.ACCOUNT_NOT_FOUND);
         }
 
         // 2. 密码校验
         if (!PasswordUtil.matches(pwd, user.getPwd())) {
             log.warn("登录失败：密码错误，账号：{}", account);
-            throw new BusinessException(401,"账号或密码错误");
+            throw new BusinessException(401,MessageConstant.PASSWORD_ERROR);
         }
         log.info("用户密码校验通过，账号：{}", account);
 
@@ -165,7 +166,7 @@ public class UserServiceImpl implements UserService {
         User existingUser = userDao.findByAccount(account);
         if (existingUser != null) {
             log.warn("注册失败：账号已存在，账号：{}", account);
-            throw new BusinessException(409,"账号已存在");
+            throw new BusinessException(409,MessageConstant.ALREADY_EXISTS);
         }
 
         // 2. 密码加密并组装用户对象
@@ -178,7 +179,7 @@ public class UserServiceImpl implements UserService {
         int result = userDao.insert(user);
         if (result <= 0) {
             log.error("注册失败：数据库插入失败，账号：{}", account);
-            throw new BusinessException("注册失败，请稍后重试");
+            throw new BusinessException(500,MessageConstant.REGISTER_FAILED);
         }
 
         log.info("用户注册成功，账号：{}", account);
@@ -205,8 +206,8 @@ public class UserServiceImpl implements UserService {
         // 校验旧密码
         User user = userDao.findByAccount(account);
         if (user == null || !PasswordUtil.matches(oldPwd, user.getPwd())) {
-            log.warn("修改密码失败：旧密码错误，账号：{}", account);
-            throw new BusinessException("旧密码错误");
+            log.warn("修改密码失败："+MessageConstant.OLD_PASSWORD_ERROR+"，账号：{}", account);
+            throw new BusinessException(401,MessageConstant.OLD_PASSWORD_ERROR);
         }
 
         // 更新新密码
@@ -214,8 +215,8 @@ public class UserServiceImpl implements UserService {
         int result = userDao.update(user);
 
         if (result <= 0) {
-            log.error("修改密码失败：数据库更新失败，账号：{}", account);
-            throw new BusinessException("修改密码失败，请稍后重试");
+            log.error(MessageConstant.PASSWORD_EDIT_FAILED+"：数据库更新失败，账号：{}", account);
+            throw new BusinessException(500,MessageConstant.PASSWORD_EDIT_FAILED);
         }
 
         log.info("用户密码修改成功，账号：{}", account);
@@ -238,14 +239,14 @@ public class UserServiceImpl implements UserService {
         // 校验用户是否存在
         User user = userDao.findByAccount(account);
         if (user == null) {
-            log.error("绑定宿舍失败：用户不存在，账号：{}", account);
-            throw new BusinessException("用户不存在");
+            log.error("绑定宿舍失败："+MessageConstant.USER_NOT_EXIST+"，账号：{}", account);
+            throw new BusinessException(400,MessageConstant.USER_NOT_EXIST);
         }
 
         // 仅学生可绑定宿舍
         if (!Role.STUDENT.getCode().equals(user.getRole())) {
             log.warn("绑定宿舍失败：非学生角色无法绑定，账号：{}", account);
-            throw new BusinessException("只有学生可以绑定宿舍");
+            throw new BusinessException(403,"只有学生可以绑定宿舍");
         }
 
         // 更新宿舍信息
@@ -254,8 +255,8 @@ public class UserServiceImpl implements UserService {
 
         int result = userDao.update(user);
         if (result <= 0) {
-            log.error("绑定宿舍失败：数据库更新失败，账号：{}", account);
-            throw new BusinessException("绑定宿舍失败，请稍后重试");
+            log.error(MessageConstant.BIND_DORM_FAILED+"：数据库更新失败，账号：{}", account);
+            throw new BusinessException(500,MessageConstant.BIND_DORM_FAILED);
         }
 
         log.info("宿舍绑定成功，账号：{}", account);

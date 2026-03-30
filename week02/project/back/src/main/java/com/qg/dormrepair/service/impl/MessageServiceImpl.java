@@ -1,5 +1,6 @@
 package com.qg.dormrepair.service.impl;
 
+import com.qg.dormrepair.constants.MessageConstant;
 import com.qg.dormrepair.exception.BusinessException;
 import com.qg.dormrepair.mapper.MessageDao;
 import com.qg.dormrepair.mapper.UserDao;
@@ -61,12 +62,12 @@ public class MessageServiceImpl implements MessageService {
 
         // 基础参数校验
         if (userAccount == null || userAccount.isBlank()) {
-            log.error("发送消息失败：接收用户账号不能为空");
-            throw new BusinessException("接收用户账号不能为空");
+            log.error("发送消息失败："+ MessageConstant.USER_ACCOUNT_NOT_EMPTY);
+            throw new BusinessException(400,MessageConstant.USER_ACCOUNT_NOT_EMPTY);
         }
         if (title == null || title.isBlank()) {
-            log.error("发送消息失败：消息标题不能为空");
-            throw new BusinessException("消息标题不能为空");
+            log.error(MessageConstant.MESSAGE_TITLE_NOT_EMPTY);
+            throw new BusinessException(400,MessageConstant.MESSAGE_TITLE_NOT_EMPTY);
         }
 
         // 构建消息实体
@@ -80,8 +81,8 @@ public class MessageServiceImpl implements MessageService {
         // 保存消息
         int rows = messageDao.insert(message);
         if (rows <= 0) {
-            log.error("发送消息失败，数据库插入失败，用户：{}", userAccount);
-            throw new BusinessException("消息发送失败，请稍后重试");
+            log.error(MessageConstant.MESSAGE_SEND_FAILED+"，数据库插入失败，用户：{}", userAccount);
+            throw new BusinessException(500,MessageConstant.MESSAGE_SEND_FAILED);
         }
 
         log.info("发送消息成功，消息ID：{}，接收用户：{}", message.getId(), userAccount);
@@ -101,8 +102,8 @@ public class MessageServiceImpl implements MessageService {
         log.info("开始群发消息，目标角色：{}，标题：{}，类型：{}", role, title, type);
 
         if (role == null || role.isBlank()) {
-            log.error("群发消息失败：角色不能为空");
-            throw new BusinessException("目标角色不能为空");
+            log.error("群发消息失败："+MessageConstant.TARGET_ROLE_NOT_EMPTY);
+            throw new BusinessException(400,MessageConstant.TARGET_ROLE_NOT_EMPTY);
         }
 
         // 获取角色下所有用户账号
@@ -213,8 +214,8 @@ public class MessageServiceImpl implements MessageService {
         // 更新状态
         int rows = messageDao.updateReadStatus(messageId, currentUser.getAccount());
         if (rows <= 0) {
-            log.error("标记消息已读失败，消息ID：{}", messageId);
-            throw new BusinessException("标记消息已读失败，请稍后重试");
+            log.error(MessageConstant.MESSAGE_READ_FAILED+"，消息ID：{}", messageId);
+            throw new BusinessException(500,MessageConstant.MESSAGE_READ_FAILED);
         }
 
         log.info("标记消息已读成功，消息ID：{}", messageId);
@@ -249,8 +250,8 @@ public class MessageServiceImpl implements MessageService {
 
         int rows = messageDao.deleteById(messageId, currentUser.getAccount());
         if (rows <= 0) {
-            log.error("删除消息失败，消息ID：{}", messageId);
-            throw new BusinessException("删除消息失败，请稍后重试");
+            log.error(MessageConstant.DELETE_FAILED+"，消息ID：{}", messageId);
+            throw new BusinessException(500,MessageConstant.DELETE_FAILED);
         }
 
         log.info("删除消息成功，消息ID：{}", messageId);
@@ -270,7 +271,7 @@ public class MessageServiceImpl implements MessageService {
 
         if (CollectionUtils.isEmpty(messageIds)) {
             log.warn("批量删除失败：消息ID列表为空");
-            throw new BusinessException("请选择需要删除的消息");
+            throw new BusinessException(400,MessageConstant.SELECT_DELETE_MESSAGE);
         }
 
         // 批量校验权限
@@ -294,7 +295,7 @@ public class MessageServiceImpl implements MessageService {
 
         if (CollectionUtils.isEmpty(messageIds)) {
             log.warn("批量标记已读失败：消息ID列表为空");
-            throw new BusinessException("请选择需要标记的消息");
+            throw new BusinessException(400,MessageConstant.SELECT_MARK_MESSAGE);
         }
 
         // 权限校验
@@ -312,8 +313,8 @@ public class MessageServiceImpl implements MessageService {
     private CurrentHolder.UserContext getCurrentUser() {
          CurrentHolder.UserContext currentUser = CurrentHolder.getCurrentUser();
         if (currentUser == null || currentUser.getAccount() == null) {
-            log.warn("用户未登录或登录状态失效");
-            throw new BusinessException("请先登录");
+            log.warn(MessageConstant.USER_NOT_LOGIN);
+            throw new BusinessException(401,MessageConstant.USER_NOT_LOGIN);
         }
         return currentUser;
     }
@@ -323,13 +324,13 @@ public class MessageServiceImpl implements MessageService {
      */
     private void checkMessageOwnership(Long messageId, String userAccount) {
         if (messageId == null || messageId <= 0) {
-            throw new BusinessException("消息ID不合法");
+            throw new BusinessException(400,MessageConstant.MESSAGE_ID_ILLEGAL);
         }
 
         Long count = messageDao.findMessageId(messageId, userAccount);
         if (count == null || count <= 0) {
-            log.warn("权限校验失败：用户【{}】无权限操作消息【{}】", userAccount, messageId);
-            throw new BusinessException(403,"无权限操作该消息");
+            log.warn("权限校验失败：用户【{}】"+MessageConstant.NO_PERMISSION+"消息【{}】", userAccount, messageId);
+            throw new BusinessException(403,MessageConstant.NO_PERMISSION);
         }
     }
 

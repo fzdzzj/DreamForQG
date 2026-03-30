@@ -1,5 +1,6 @@
 package com.qg.dormrepair.exception;
 
+import com.qg.dormrepair.constants.MessageConstant;
 import com.qg.dormrepair.pojo.Result;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.stream.Collectors;
 
 /**
@@ -65,7 +67,23 @@ public class GlobalExceptionHandler {
         }
         return Result.error(e.getCode(), e.getMessage());
     }
-// ... existing code ...
+    /**
+     * 处理SQL异常
+     * @param ex
+     * @return
+     */@ExceptionHandler
+        public Result exceptionHandler(SQLIntegrityConstraintViolationException ex){
+        //Duplicate entry 'zhangsan' for key 'employee.idx_username'
+        String message = ex.getMessage();
+        if(message.contains("Duplicate entry")){
+            String[] split = message.split(" ");
+            String username = split[2];
+            String msg = username + MessageConstant.ALREADY_EXISTS;
+            return Result.error(msg);
+        }else{
+            return Result.error(MessageConstant.UNKNOWN_ERROR);
+        }
+    }
 
 
     /**

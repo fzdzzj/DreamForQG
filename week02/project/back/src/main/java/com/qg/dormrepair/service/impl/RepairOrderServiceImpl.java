@@ -2,6 +2,7 @@ package com.qg.dormrepair.service.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.qg.dormrepair.constants.MessageConstant;
 import com.qg.dormrepair.dto.CreateOrderDTO;
 import com.qg.dormrepair.dto.OrderQueryDTO;
 import com.qg.dormrepair.dto.UpdateOrderDTO;
@@ -105,8 +106,8 @@ public class RepairOrderServiceImpl implements RepairOrderService {
         // 插入数据库
         boolean result = repairOrderDao.insert(repairOrder);
         if (!result) {
-            log.error("创建报修单失败：数据库插入失败, 学生账号:{}, 订单信息:{}", account, repairOrder);
-            throw new BusinessException("报修订单提交失败，请稍后重试");
+            log.error(MessageConstant.ORDER_SUBMIT_FAILED+"：数据库插入失败, 学生账号:{}, 订单信息:{}", account, repairOrder);
+            throw new BusinessException(500,MessageConstant.ORDER_SUBMIT_FAILED);
         }
         log.info("创建报修单成功,学生账号:{}, 订单ID:{}", account, repairOrder.getId());
 
@@ -162,16 +163,16 @@ public class RepairOrderServiceImpl implements RepairOrderService {
         String currentAccount = CurrentHolder.getCurrentUser().getAccount();
         if (RegexUtil.isStudentId(currentAccount)) {
             if (repairOrderDao.isOrderBelongToUser(id, currentAccount) == null) {
-                log.warn("权限校验失败：学生无权限查看该订单，账号：{}，订单ID：{}", currentAccount, id);
-                throw new BusinessException(403,"无权限查看该订单");
+                log.warn("权限校验失败：学生"+MessageConstant.NO_PERMISSION+"该订单，账号：{}，订单ID：{}", currentAccount, id);
+                throw new BusinessException(403,MessageConstant.NO_PERMISSION);
             }
         }
 
         // 查询订单信息
         RepairOrder order = repairOrderDao.findById(id);
         if (order == null) {
-            log.warn("查询失败：报修单不存在，订单ID：{}", id);
-            throw new BusinessException("报修单不存在");
+            log.warn("查询失败："+MessageConstant.ORDER_NOT_EXIST+"，订单ID：{}", id);
+            throw new BusinessException(400,MessageConstant.ORDER_NOT_EXIST);
         }
 
         log.debug("查询报修单详情成功，订单ID：{}", id);
@@ -245,8 +246,8 @@ public class RepairOrderServiceImpl implements RepairOrderService {
         // 校验订单是否存在
         RepairOrder order = repairOrderDao.findById(id);
         if (order == null) {
-            log.warn("更新状态失败：报修单不存在，订单ID：{}", id);
-            throw new BusinessException(400,"报修单不存在");
+            log.warn("更新状态失败："+MessageConstant.ORDER_NOT_EXIST+"订单ID：{}", id);
+            throw new BusinessException(400,MessageConstant.ORDER_NOT_EXIST);
         }
 
         // 更新订单信息
@@ -255,8 +256,8 @@ public class RepairOrderServiceImpl implements RepairOrderService {
         int updateRows = repairOrderDao.update(order);
 
         if (updateRows <= 0) {
-            log.error("更新报修单状态失败，订单ID：{}", id);
-            throw new BusinessException("更新报修单状态失败，请稍后重试");
+            log.error(MessageConstant.ORDER_UPDATE_FAILED+"，订单ID：{}", id);
+            throw new BusinessException(500,MessageConstant.ORDER_UPDATE_FAILED);
         }
         log.info("更新报修单状态成功，订单ID：{}", id);
 
@@ -287,15 +288,15 @@ public class RepairOrderServiceImpl implements RepairOrderService {
 
         // 权限校验
         if (repairOrderDao.isOrderBelongToUser(id, currentAccount) == null) {
-            log.warn("取消失败：学生无权限取消该订单，账号：{}，订单ID：{}", currentAccount, id);
-            throw new BusinessException(403,"无权限取消该订单");
+            log.warn("取消失败：学生"+MessageConstant.NO_PERMISSION+"该订单，账号：{}，订单ID：{}", currentAccount, id);
+            throw new BusinessException(403,MessageConstant.NO_PERMISSION);
         }
 
         // 订单存在性校验
         RepairOrder order = repairOrderDao.findById(id);
         if (order == null) {
-            log.warn("取消失败：报修单不存在，订单ID：{}", id);
-            throw new BusinessException("报修单不存在");
+            log.warn("取消失败："+MessageConstant.ORDER_NOT_EXIST+"，订单ID：{}", id);
+            throw new BusinessException(400,MessageConstant.ORDER_NOT_EXIST);
         }
 
         // 更新为已取消状态
@@ -304,8 +305,8 @@ public class RepairOrderServiceImpl implements RepairOrderService {
         int updateRows = repairOrderDao.update(order);
 
         if (updateRows <= 0) {
-            log.error("取消报修单失败，订单ID：{}", id);
-            throw new BusinessException("取消报修单失败，请稍后重试");
+            log.error(MessageConstant.ORDER_CANCEL_FAILED+"，订单ID：{}", id);
+            throw new BusinessException(500,MessageConstant.ORDER_CANCEL_FAILED);
         }
         log.info("取消报修单成功，订单ID：{}", id);
     }
@@ -324,15 +325,15 @@ public class RepairOrderServiceImpl implements RepairOrderService {
         // 校验订单是否存在
         RepairOrder order = repairOrderDao.findById(id);
         if (order == null) {
-            log.warn("删除失败：报修单不存在，订单ID：{}", id);
-            throw new BusinessException(400,"报修单不存在");
+            log.warn("删除失败："+MessageConstant.ORDER_NOT_EXIST+"，订单ID：{}", id);
+            throw new BusinessException(400,MessageConstant.ORDER_NOT_EXIST);
         }
 
         // 执行删除
         boolean deleteResult = repairOrderDao.deleteById(id);
         if (!deleteResult) {
-            log.error("删除报修单失败，订单ID：{}", id);
-            throw new BusinessException("删除报修单失败，请稍后重试");
+            log.error(MessageConstant.DELETE_FAILED+"，订单ID：{}", id);
+            throw new BusinessException(500,MessageConstant.DELETE_FAILED);
         }
         log.info("删除报修单成功，订单ID：{}", id);
     }
@@ -395,8 +396,8 @@ public class RepairOrderServiceImpl implements RepairOrderService {
     public void updateOrder(UpdateOrderDTO repairOrder) {
         String account = CurrentHolder.getCurrentUser().getAccount();
         if (account == null) {
-            log.warn("更新报修单失败：用户未登录");
-            throw new BusinessException("用户未登录，请重新登录");
+            log.warn(MessageConstant.USER_NOT_LOGIN);
+            throw new BusinessException(401,MessageConstant.USER_NOT_LOGIN);
         }
 
         Long orderId = repairOrder.getId();
@@ -405,14 +406,14 @@ public class RepairOrderServiceImpl implements RepairOrderService {
         // 校验订单是否存在
         RepairOrder order = repairOrderDao.findById(orderId);
         if (order == null) {
-            log.warn("更新失败：报修单不存在，订单ID：{}", orderId);
-            throw new BusinessException("报修单不存在");
+            log.warn("更新失败："+MessageConstant.ORDER_NOT_EXIST+"，订单ID：{}", orderId);
+            throw new BusinessException(400,MessageConstant.ORDER_NOT_EXIST);
         }
 
         // 校验是否本人订单
         if (!order.getStudentAccount().equals(account)) {
-            log.warn("更新失败：无权限操作他人订单，账号：{}，订单ID：{}", account, orderId);
-            throw new BusinessException(403,"无权限更新该报修单");
+            log.warn("更新失败："+MessageConstant.NO_PERMISSION+"他人订单，账号：{}，订单ID：{}", account, orderId);
+            throw new BusinessException(403,MessageConstant.NO_PERMISSION);
         }
 
         // 组装更新数据
@@ -434,8 +435,8 @@ public class RepairOrderServiceImpl implements RepairOrderService {
         // 执行更新
         int updateRows = repairOrderDao.update(order);
         if (updateRows <= 0) {
-            log.error("更新报修单失败，订单ID：{}", orderId);
-            throw new BusinessException("更新报修单失败，请稍后重试");
+            log.error(MessageConstant.ORDER_UPDATE_FAILED+"，订单ID：{}", orderId);
+            throw new BusinessException(500,MessageConstant.ORDER_UPDATE_FAILED);
         }
         log.info("更新报修单成功，订单ID：{}", orderId);
 

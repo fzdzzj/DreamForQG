@@ -1,5 +1,6 @@
 package com.qg.dormrepair.service.impl;
 
+import com.qg.dormrepair.constants.MessageConstant;
 import com.qg.dormrepair.exception.BusinessException;
 import com.qg.dormrepair.mapper.PermissionDao;
 import com.qg.dormrepair.service.PermissionService;
@@ -10,6 +11,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -35,8 +37,8 @@ public class PermissionServiceImpl implements PermissionService {
 
         // 参数非空校验
         if (!StringUtils.hasText(roleCode)) {
-            log.error("根据角色查询权限失败，角色编码不能为空");
-            throw new BusinessException("角色编码不能为空");
+            log.error("根据角色查询权限失败，"+MessageConstant.ROLE_CODE_NOT_EMPTY);
+            throw new BusinessException(400,MessageConstant.ROLE_CODE_NOT_EMPTY);
         }
 
         // 查询数据库获取权限列表

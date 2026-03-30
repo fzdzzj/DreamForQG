@@ -1,5 +1,6 @@
 package com.qg.dormrepair.util;
 
+import com.qg.dormrepair.constants.MessageConstant;
 import lombok.extern.slf4j.Slf4j;
 
 import java.security.MessageDigest;
@@ -41,7 +42,7 @@ public class PasswordUtil {
             return result.toString();
         } catch (Exception e) {
             log.error("密码加密异常", e);
-            throw new RuntimeException("密码加密失败", e);
+            throw new RuntimeException(MessageConstant.PASSWORD_ENCRYPT_ERROR, e);
         }
     }
 

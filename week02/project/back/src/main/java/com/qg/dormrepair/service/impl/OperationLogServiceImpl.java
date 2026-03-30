@@ -1,5 +1,6 @@
 package com.qg.dormrepair.service.impl;
 
+import com.qg.dormrepair.constants.MessageConstant;
 import com.qg.dormrepair.exception.BusinessException;
 import com.qg.dormrepair.mapper.OperationLogDao;
 import com.qg.dormrepair.pojo.OperationLogEnity;
@@ -45,12 +46,12 @@ public class OperationLogServiceImpl implements OperationLogService {
 
         // 校验分页参数合法性
         if (pageNum == null || pageNum < 1) {
-            log.error("分页查询操作日志失败，页码不合法：{}", pageNum);
-            throw new BusinessException("页码不能小于1");
+            log.error("分页查询操作日志失败，页码不合法,"+ MessageConstant.PAGE_NUM_INVALID+"：{}", pageNum);
+            throw new BusinessException(400,MessageConstant.PAGE_NUM_INVALID);
         }
         if (pageSize == null || pageSize < 1) {
-            log.error("分页查询操作日志失败，每页条数不合法：{}", pageSize);
-            throw new BusinessException("每页条数不能小于1");
+            log.error("分页查询操作日志失败，每页条数不合法,"+MessageConstant.PAGE_SIZE_INVALID+"：{}", pageSize);
+            throw new BusinessException(400,MessageConstant.PAGE_SIZE_INVALID);
         }
 
         // 计算分页偏移量
@@ -82,14 +83,14 @@ public class OperationLogServiceImpl implements OperationLogService {
         // 参数校验
         if (logIds == null || logIds.length == 0) {
             log.warn("批量删除操作日志失败，日志ID不能为空");
-            throw new BusinessException("请选择需要删除的日志");
+            throw new BusinessException(400,MessageConstant.SELECT_DELETE_LOG);
         }
 
         // 执行批量删除
          Long rows =operationLogDao.deleteLogs(logIds);
             if (rows != logIds.length) {
                 log.error("批量删除操作日志失败，实际删除数量：{}，期望删除数量：{}", rows, logIds.length);
-                throw new BusinessException(400,"删除失败");
+                throw new BusinessException(400,MessageConstant.DELETE_FAILED);
             }
         log.info("批量删除操作日志成功，删除数量：{}", logIds.length);
     }

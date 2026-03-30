@@ -1,5 +1,6 @@
 package com.qg.dormrepair.service.impl;
 
+import com.qg.dormrepair.constants.MessageConstant;
 import com.qg.dormrepair.exception.BusinessException;
 import com.qg.dormrepair.service.PermissionService;
 import com.qg.dormrepair.util.JwtUtils;
@@ -49,29 +50,29 @@ public class TokenRefreshServiceImpl {
 
         // 参数校验
         if (refreshToken == null || refreshToken.isBlank()) {
-            log.error("刷新 Token 失败：RefreshToken 不能为空");
-            throw new BusinessException(401,"RefreshToken 不能为空");
+            log.error("刷新 Token 失败："+MessageConstant.REFRESH_TOKEN_NOT_EMPTY);
+            throw new BusinessException(401, MessageConstant.REFRESH_TOKEN_NOT_EMPTY);
         }
 
         // 1. 黑名单校验：已拉黑的 Token 直接拒绝
         if (tokenBlacklist.containsKey(refreshToken)) {
             log.warn("刷新 Token 失败：RefreshToken 已被加入黑名单，Token：{}", refreshToken);
-            throw new BusinessException(401,"Refresh Token 已失效，请重新登录");
+            throw new BusinessException(401,MessageConstant.REFRESH_TOKEN_INVALID+"，请重新登录");
         }
         log.info("RefreshToken 黑名单校验通过");
 
         // 2. 过期校验
         if (jwtUtils.isTokenExpired(refreshToken)) {
-            log.warn("刷新 Token 失败：RefreshToken 已过期，Token：{}", refreshToken);
-            throw new BusinessException(401,"Refresh Token 已过期，请重新登录");
+            log.warn("刷新 Token 失败:"+MessageConstant.REFRESH_TOKEN_EXPIRED+"，Token：{}", refreshToken);
+            throw new BusinessException(401,MessageConstant.REFRESH_TOKEN_EXPIRED+"，请重新登录");
         }
         log.info("RefreshToken 过期校验通过");
 
         // 3. Token 类型必须是 refresh
         String type = jwtUtils.getTypeFromToken(refreshToken);
         if (!"refresh".equals(type)) {
-            log.error("刷新 Token 失败：Token 类型错误，当前类型：{}", type);
-            throw new BusinessException(401,"非法 Token，类型错误");
+            log.error("刷新 Token 失败："+MessageConstant.TOKEN_TYPE_ILLEGAL+"，当前类型：{}", type);
+            throw new BusinessException(401,MessageConstant.TOKEN_TYPE_ILLEGAL);
         }
         log.info("RefreshToken 类型校验通过，类型：{}", type);
 
@@ -79,8 +80,8 @@ public class TokenRefreshServiceImpl {
         String account = jwtUtils.getAccountFromToken(refreshToken);
         String role = jwtUtils.getRoleFromToken(refreshToken);
         if (account == null || role == null) {
-            log.error("刷新 Token 失败：无法从 Token 解析用户信息，account={}，role={}", account, role);
-            throw new BusinessException(401,"Token 无效，无法获取用户信息");
+            log.error("刷新 Token 失败："+MessageConstant.TOKEN_INVALID+"，account={}，role={}", account, role);
+            throw new BusinessException(401,MessageConstant.TOKEN_INVALID);
         }
         log.info("成功解析用户信息，账号：{}，角色：{}", account, role);
 

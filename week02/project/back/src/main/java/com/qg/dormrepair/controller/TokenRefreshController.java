@@ -1,6 +1,7 @@
 package com.qg.dormrepair.controller;
 
 import com.qg.dormrepair.annotation.OperationLog;
+import com.qg.dormrepair.constants.MessageConstant;
 import com.qg.dormrepair.exception.BusinessException;
 import com.qg.dormrepair.pojo.Result;
 import com.qg.dormrepair.service.impl.TokenRefreshServiceImpl;
@@ -67,7 +68,7 @@ public class TokenRefreshController {
         if (requestBody != null) {
             refreshToken = requestBody.get("refreshToken");
         }else if(refreshToken == null){
-            throw new BusinessException(400,"refreshToken不能为空");
+            throw new BusinessException(400, MessageConstant.REFRESH_TOKEN_NOT_EMPTY);
         }
 
         // 3. 两个 Token 都拉黑（关键！）
