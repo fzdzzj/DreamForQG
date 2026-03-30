@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,6 +40,7 @@ public class StudentController {
      * 报修订单业务层服务对象（构造器注入，不可变）
      */
     private final RepairOrderService repairOrderService;
+    private final RedisTemplate redisTemplate;
 
     /**
      * 创建维修订单
@@ -73,7 +75,14 @@ public class StudentController {
     @Operation(summary = "查询我的报修单", description = "获取当前登录学生的所有报修订单")
     public Result<List<RepairListVO>> getMyOrders() {
         log.info("查询当前学生的所有报修订单");
-        List<RepairListVO> orders = repairOrderService.getOrdersByAccount();
+        String key ="order_"+CurrentHolder.getCurrentUser().getAccount();
+        List<RepairListVO> orders = (List<RepairListVO>) redisTemplate.opsForValue().get(key);
+        if (orders != null) {
+            log.info("Redis查询当前学生的所有报修订单成功:{}", orders);
+            return Result.success(orders);
+        }
+        orders = repairOrderService.getOrdersByAccount();
+        redisTemplate.opsForValue().set(key, orders);
         log.info("查询当前学生的所有报修订单成功:{}", orders);
         return Result.success(orders);
     }
@@ -93,8 +102,15 @@ public class StudentController {
     public Result<RepairOrderVO> getOrderDetail(
             @Parameter(description = "报修单ID", required = true, example = "1001") @PathVariable Long id) {
         log.info("查询报修单详情,ID:{}", id);
-        RepairOrderVO repairOrderVO = repairOrderService.getOrderById(id);
+        String key ="orderEX_"+CurrentHolder.getCurrentUser().getAccount()+"_"+id;
+        RepairOrderVO repairOrderVO=(RepairOrderVO) redisTemplate.opsForValue().get(key);
+        if (repairOrderVO != null) {
+            log.info("Redis查询报修单详情成功:{}", repairOrderVO);
+            return Result.success(repairOrderVO);
+        }
+        repairOrderVO = repairOrderService.getOrderById(id);
         log.info("查询报修单详情成功:{}", repairOrderVO);
+        redisTemplate.opsForValue().set(key, repairOrderVO);
         return Result.success(repairOrderVO);
     }
 

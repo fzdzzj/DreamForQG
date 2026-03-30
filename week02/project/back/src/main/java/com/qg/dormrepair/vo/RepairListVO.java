@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
@@ -14,8 +16,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Schema(description = "报修单列表响应信息")
-public class RepairListVO {
+public class RepairListVO implements Serializable {
 
+    private static final long serialVersionUID = 1L;
     @Schema(description = "报修单ID", example = "1001")
     private Long id;
 

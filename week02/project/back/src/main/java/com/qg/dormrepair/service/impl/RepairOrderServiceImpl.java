@@ -20,6 +20,7 @@ import com.qg.dormrepair.vo.RepairListVO;
 import com.qg.dormrepair.vo.RepairOrderVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.alibaba.fastjson2.JSON;
@@ -55,6 +56,8 @@ public class RepairOrderServiceImpl implements RepairOrderService {
      * 消息服务对象（构造器注入，不可变）
      */
     private final MessageService messageService;
+
+    private final RedisTemplate redisTemplate;
 
     /**
      * 创建维修订单的具体实现逻辑
@@ -110,7 +113,7 @@ public class RepairOrderServiceImpl implements RepairOrderService {
             throw new BusinessException(500,MessageConstant.ORDER_SUBMIT_FAILED);
         }
         log.info("创建报修单成功,学生账号:{}, 订单ID:{}", account, repairOrder.getId());
-
+        redisTemplate.delete("order_"+ account);
         // 发送消息通知
         messageService.sendMessage(account, "报修单提交成功", "您已成功提交报修单，请耐心等待处理", MessageType.REPAIR.getCode(), repairOrder.getId());
         messageService.sendToRole(Role.ADMIN.getCode(), "有新的报修单", "请及时处理", MessageType.REPAIR.getCode(), repairOrder.getId());
@@ -268,6 +271,8 @@ public class RepairOrderServiceImpl implements RepairOrderService {
                 "报修单状态更新",
                 "您的报修单" + statusName + "\n设备类型：" + deviceTypeName,
                 MessageType.REPAIR.getCode(), id);
+        redisTemplate.delete("order_"+order.getStudentAccount());
+        redisTemplate.delete("orderEX_"+order.getStudentAccount()+"_"+id);
         log.info("发送报修单状态更新通知成功，学生账号：{}", order.getStudentAccount());
     }
 
@@ -308,6 +313,8 @@ public class RepairOrderServiceImpl implements RepairOrderService {
             log.error(MessageConstant.ORDER_CANCEL_FAILED+"，订单ID：{}", id);
             throw new BusinessException(500,MessageConstant.ORDER_CANCEL_FAILED);
         }
+        redisTemplate.delete("order_"+currentAccount);
+        redisTemplate.delete("orderEX_"+currentAccount+"_"+id);
         log.info("取消报修单成功，订单ID：{}", id);
     }
 
@@ -335,6 +342,8 @@ public class RepairOrderServiceImpl implements RepairOrderService {
             log.error(MessageConstant.DELETE_FAILED+"，订单ID：{}", id);
             throw new BusinessException(500,MessageConstant.DELETE_FAILED);
         }
+        redisTemplate.delete("order_"+order.getStudentAccount());
+        redisTemplate.delete("orderEX_"+order.getStudentAccount()+"_"+id);
         log.info("删除报修单成功，订单ID：{}", id);
     }
 
@@ -439,7 +448,8 @@ public class RepairOrderServiceImpl implements RepairOrderService {
             throw new BusinessException(500,MessageConstant.ORDER_UPDATE_FAILED);
         }
         log.info("更新报修单成功，订单ID：{}", orderId);
-
+        redisTemplate.delete("order_"+account);
+        redisTemplate.delete("orderEX_"+account+"_"+orderId);
         // 发送更新通知
         messageService.sendMessage(account, "报修单更新成功", "您的报修单信息已修改", MessageType.REPAIR.getCode());
     }

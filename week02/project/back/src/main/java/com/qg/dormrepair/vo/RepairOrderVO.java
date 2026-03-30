@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -17,8 +18,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Schema(description = "报修单详情响应信息")
-public class RepairOrderVO {
+public class RepairOrderVO implements Serializable {
 
+    private static final long serialVersionUID = 1L;
     // 报修单ID
     @Schema(description = "报修单ID", example = "1001")
     private Long id;

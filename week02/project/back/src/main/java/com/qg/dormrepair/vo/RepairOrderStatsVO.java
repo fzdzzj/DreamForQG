@@ -14,9 +14,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @Schema(description = "报修单统计响应信息")
-public class RepairOrderStatsVO implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+public class RepairOrderStatsVO  {
     @Schema(description = "宿舍楼栋", example = "A栋")
     private String dormBuilding;
 
