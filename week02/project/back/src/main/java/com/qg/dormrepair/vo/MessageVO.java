@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
@@ -16,8 +17,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Schema(description = "消息信息响应体")
-public class MessageVO {
-
+public class MessageVO implements Serializable {
+    private static final long serialVersionUID = 1L;
     //消息ID
     @Schema(description = "消息ID", example = "1001")
     private Long id;

@@ -19,7 +19,6 @@ public interface OperationLogDao {
     @Insert("INSERT INTO operation_log (user_account, operation, result, ip_address, create_time, request_uri, request_params) " +
             "VALUES (#{userAccount}, #{operation}, #{result}, #{ipAddress}, #{createTime}, #{requestUri}, #{requestParams})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
-    @AutoFill(DataBaseOperationType.INSERT)
     int insert(OperationLogEnity log);
 
     // 多条件查询

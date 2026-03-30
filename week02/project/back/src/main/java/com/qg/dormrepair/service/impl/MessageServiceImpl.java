@@ -12,6 +12,7 @@ import com.qg.dormrepair.vo.MessageVO;
 import com.qg.dormrepair.vo.PageResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -30,7 +31,7 @@ public class MessageServiceImpl implements MessageService {
 
     private final MessageDao messageDao;
     private final UserDao userDao;
-
+    private final RedisTemplate redisTemplate;
     /**
      * 发送消息
      *
@@ -78,6 +79,7 @@ public class MessageServiceImpl implements MessageService {
         message.setType(type);
         message.setRelatedId(relatedId);
         message.setIsRead("2");
+        message.setCreateTime(LocalDateTime.now());
         // 保存消息
         int rows = messageDao.insert(message);
         if (rows <= 0) {
@@ -86,6 +88,9 @@ public class MessageServiceImpl implements MessageService {
         }
 
         log.info("发送消息成功，消息ID：{}，接收用户：{}", message.getId(), userAccount);
+        redisTemplate.delete("msgUnreadCount_"+userAccount);
+        redisTemplate.delete("msg_"+userAccount);
+        redisTemplate.delete("msgStats_"+userAccount);
     }
 
     /**
@@ -98,7 +103,7 @@ public class MessageServiceImpl implements MessageService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void sendToRole(String role, String title, String content, String type) {
+    public void sendToRole(String role, String title, String content, String type, Long relatedId) {
         log.info("开始群发消息，目标角色：{}，标题：{}，类型：{}", role, title, type);
 
         if (role == null || role.isBlank()) {
@@ -116,7 +121,7 @@ public class MessageServiceImpl implements MessageService {
         // 批量发送
         for (String account : userAccountList) {
             try {
-                sendMessage(account, title, content, type);
+                sendMessage(account, title, content, type,relatedId);
             } catch (Exception e) {
                 log.error("向用户【{}】群发消息失败", account, e);
             }
@@ -217,7 +222,9 @@ public class MessageServiceImpl implements MessageService {
             log.error(MessageConstant.MESSAGE_READ_FAILED+"，消息ID：{}", messageId);
             throw new BusinessException(500,MessageConstant.MESSAGE_READ_FAILED);
         }
-
+        redisTemplate.delete("msg_"+currentUser.getAccount());
+        redisTemplate.delete("msgStats_"+currentUser.getAccount());
+        redisTemplate.delete("msgUnreadCount_"+currentUser.getAccount());
         log.info("标记消息已读成功，消息ID：{}", messageId);
     }
 
@@ -231,6 +238,13 @@ public class MessageServiceImpl implements MessageService {
         log.info("开始标记用户【{}】所有消息为已读", currentUser.getAccount());
 
         int rows = messageDao.updateAllReadStatus(currentUser.getAccount());
+        if(rows <= 0){
+            log.error(MessageConstant.MESSAGE_READ_FAILED);
+            throw new BusinessException(500,MessageConstant.MESSAGE_READ_FAILED);
+        }
+        redisTemplate.delete("msg_"+currentUser.getAccount());
+        redisTemplate.delete("msgStats_"+currentUser.getAccount());
+        redisTemplate.delete("msgUnreadCount_"+currentUser.getAccount());
         log.info("标记所有消息已读完成，用户：{}，更新条数：{}", currentUser.getAccount(), rows);
     }
 
@@ -253,7 +267,9 @@ public class MessageServiceImpl implements MessageService {
             log.error(MessageConstant.DELETE_FAILED+"，消息ID：{}", messageId);
             throw new BusinessException(500,MessageConstant.DELETE_FAILED);
         }
-
+        redisTemplate.delete("msg_"+currentUser.getAccount());
+        redisTemplate.delete("msgStats_"+currentUser.getAccount());
+        redisTemplate.delete("msgUnreadCount_"+currentUser.getAccount());
         log.info("删除消息成功，消息ID：{}", messageId);
     }
 
@@ -278,6 +294,13 @@ public class MessageServiceImpl implements MessageService {
         checkMessageOwnershipBatch(messageIds, currentUser.getAccount());
 
         int rows = messageDao.deleteBatch(messageIds, currentUser.getAccount());
+        if (rows <= 0) {
+            log.error(MessageConstant.DELETE_FAILED);
+            throw new BusinessException(500,MessageConstant.DELETE_FAILED);
+        }
+        redisTemplate.delete("msg_"+currentUser.getAccount());
+        redisTemplate.delete("msgStats_"+currentUser.getAccount());
+        redisTemplate.delete("msgUnreadCount_"+currentUser.getAccount());
         log.info("批量删除消息成功，用户：{}，删除条数：{}", currentUser.getAccount(), rows);
     }
 
@@ -302,6 +325,13 @@ public class MessageServiceImpl implements MessageService {
         checkMessageOwnershipBatch(messageIds, currentUser.getAccount());
 
         int rows = messageDao.markBatchAsRead(messageIds, currentUser.getAccount());
+        if (rows <= 0){
+            log.error(MessageConstant.MESSAGE_READ_FAILED);
+            throw new BusinessException(500,MessageConstant.MESSAGE_READ_FAILED);
+        }
+        redisTemplate.delete("msg_"+currentUser.getAccount());
+        redisTemplate.delete("msgStats_"+currentUser.getAccount());
+        redisTemplate.delete("msgUnreadCount_"+currentUser.getAccount());
         log.info("批量标记已读成功，用户：{}，更新条数：{}", currentUser.getAccount(), rows);
     }
 

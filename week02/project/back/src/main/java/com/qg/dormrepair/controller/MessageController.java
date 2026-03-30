@@ -13,8 +13,11 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 消息功能控制器
@@ -34,6 +37,7 @@ public class MessageController {
      * 消息业务层服务对象（构造器注入，不可变）
      */
     private final MessageService messageService;
+    private final RedisTemplate redisTemplate;
 
     /**
      * 获取未读消息数量
@@ -47,7 +51,13 @@ public class MessageController {
     @Operation(summary = "获取未读消息数量", description = "获取当前登录用户的未读消息总数")
     public Result<Long> getUnreadCount() {
         log.info("获取未读消息数量");
+        String key="msgUnreadCount_"+CurrentHolder.getCurrentUser().getAccount()+"";
+        if(redisTemplate.opsForValue().get(key)!=null){
+            log.info("Redis获取未读消息数量成功");
+            return Result.success(Long.parseLong(redisTemplate.opsForValue().get(key).toString()));
+        }
         Long unreadCount = messageService.getUnreadCount();
+        redisTemplate.opsForValue().set(key,unreadCount);
         log.info("未读消息数量:{}", unreadCount);
         return Result.success(unreadCount);
     }
@@ -68,8 +78,16 @@ public class MessageController {
             @Parameter(description = "每页数量", example = "10") @RequestParam(defaultValue = "10") Integer pageSize,
             @Parameter(description = "消息类型 1=系统消息 2=报修单消息 3=公告", example = "1")@RequestParam(required = false)String  type) {
         log.info("获取消息列表");
+        String key="msg_"+CurrentHolder.getCurrentUser().getAccount();
+
+        List<MessageVO>list=(List<MessageVO>)redisTemplate.opsForValue().get(key);
+        if(list!=null&&list.size()>0){
+            log.info("Redis获取消息列表成功");
+            return Result.success(new PageResult<>(list, (long) list.size(),pageNum,pageSize));
+        }
         PageResult<MessageVO> pageResult = messageService.getMessages(isRead, pageNum, pageSize,type);
-        log.info("获取消息列表成功,总数:{}", pageResult.getTotal());
+        log.info("重新获取消息列表成功,总数:{}", pageResult.getTotal());
+        redisTemplate.opsForValue().set(key,pageResult.getList());
         return Result.success(pageResult);
     }
 
@@ -145,7 +163,13 @@ public class MessageController {
     @Operation(summary = "获取消息统计信息", description = "总消息数、已读、未读统计")
     public Result<MessageStatsVO> getStats() {
         log.info("获取消息统计信息");
+        String key="msgStats_"+CurrentHolder.getCurrentUser().getAccount();
+        if(redisTemplate.opsForValue().get(key)!=null){
+            log.info("Redis获取消息统计信息成功");
+            return Result.success((MessageStatsVO) redisTemplate.opsForValue().get(key));
+        }
         MessageStatsVO stats = messageService.getStats();
+        redisTemplate.opsForValue().set(key,stats);
         log.info("获取消息统计信息成功,数据:{}", stats);
         return Result.success(stats);
     }

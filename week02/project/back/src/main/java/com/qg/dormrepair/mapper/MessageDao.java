@@ -18,7 +18,6 @@ public interface MessageDao {
     @Insert("INSERT INTO message (user_account, title, content, type, is_read, related_id, create_time) " +
             "VALUES (#{userAccount}, #{title}, #{content}, #{type}, #{isRead}, #{relatedId}, #{createTime})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
-    @AutoFill(DataBaseOperationType.INSERT)
     int insert(Message message);
 
 

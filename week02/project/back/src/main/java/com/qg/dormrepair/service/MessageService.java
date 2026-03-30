@@ -41,7 +41,7 @@ public interface MessageService {
      * @param content 消息内容
      * @param type    消息类型
      */
-    void sendToRole(String role, String title, String content, String type);
+    void sendToRole(String role, String title, String content, String type, Long relatedId);
 
     /**
      * 获取当前登录用户的未读消息总数

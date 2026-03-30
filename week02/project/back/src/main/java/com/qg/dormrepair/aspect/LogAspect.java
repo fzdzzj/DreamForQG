@@ -60,7 +60,7 @@ public class LogAspect {
 
         // 构建日志实体
         OperationLogEnity logEntity = buildLogEntity(joinPoint, logAnnotation, request);
-
+        logEntity.setCreateTime(LocalDateTime.now());
         try {
             // 执行业务方法
             Object result = joinPoint.proceed();
