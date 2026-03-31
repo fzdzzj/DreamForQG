@@ -56,7 +56,7 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- ✅ 新版 JJWT（支持 JDK17+/21 + SpringBoot3）-->
+        <!-- ✅ 新版 JJWT -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>

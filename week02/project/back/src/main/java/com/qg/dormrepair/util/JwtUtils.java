@@ -3,12 +3,14 @@ package com.qg.dormrepair.util;
 import com.qg.dormrepair.config.JwtProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
+import io.jsonwebtoken.security.Keys;
 
 /**
  * JWT工具类
@@ -73,11 +75,13 @@ public class JwtUtils {
         Date expiration = new Date(now + expire);
 
         log.info("生成【{}】Token → 账号：{}，过期时间：{}", type, account, expiration);
+        //构建 JWT 签名
+        SecretKey secretKey = Keys.hmacShaKeyFor(jwtProperties.getSignKey().getBytes(StandardCharsets.UTF_8));
 
         return Jwts.builder()
                 .addClaims(claims)
                 .setExpiration(expiration)
-                .signWith(SignatureAlgorithm.HS256, jwtProperties.getSignKey())
+                .signWith(secretKey)
                 .compact();
     }
 
@@ -89,8 +93,10 @@ public class JwtUtils {
      */
     public Claims parseToken(String token) {
         try {
-            return Jwts.parser()
-                    .setSigningKey(jwtProperties.getSignKey())
+            SecretKey secretKey = Keys.hmacShaKeyFor(jwtProperties.getSignKey().getBytes(StandardCharsets.UTF_8));
+            return Jwts.parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build()
                     .parseClaimsJws(token)
                     .getBody();
         } catch (Exception e) {
@@ -101,25 +107,35 @@ public class JwtUtils {
 
     /**
      * 从Token中获取权限集合（兼容List/Set类型）
-     *
-     * @param claims 已解析的Token载荷
-     * @return 权限集合
+     * 解决：JWT解析后权限可能是 List 或 Set 类型，统一转成 Set<String> 方便使用
      */
     public Set<String> getPermissionsFromToken(Claims claims) {
         try {
+            // 打印完整载荷信息，方便调试查看Token里到底存了什么
             log.error("===== 完整 claims：{} =====", claims);
+
+            // 从JWT的载荷中取出 permissions 字段（存储的是用户权限列表）
             Object obj = claims.get("permissions");
             log.error("===== permissions 原始值：{} =====", obj);
 
-            // 兼容处理：统一转为Set<String>
+            // ===================== 核心兼容逻辑 =====================
+            // 作用：无论权限是 List 类型、Set 类型、数组类型，都能统一处理
+            // Iterable<?> 是所有集合（List/Set）的父接口，instanceof 判断是不是集合
             if (obj instanceof Iterable<?>) {
+                // 创建一个空的 Set<String>，用于存放最终的权限字符串
                 Set<String> result = new HashSet<>();
+
+                // 遍历集合中的每一个权限元素（强制转换成 Iterable 才能循环）
                 for (Object item : (Iterable<?>) obj) {
+                    // 把每个权限对象 转为 String 类型，存入Set
+                    // 防止权限是数字、枚举等其他类型，统一转字符串最安全
                     result.add(item.toString());
                 }
+
+                // 返回统一格式的权限集合 Set<String>
                 return result;
             }
-
+            // 如果不是集合类型（比如null、字符串、数字等），直接返回null
             return null;
         } catch (Exception e) {
             log.error("获取权限失败", e);
