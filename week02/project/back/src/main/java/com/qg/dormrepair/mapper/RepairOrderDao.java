@@ -19,13 +19,13 @@ public interface RepairOrderDao {
     // 列表查询 - 只查必要字段
     @Select("SELECT id, device_type, description, status, priority, " +
             "dorm_building, dorm_room, create_time " +
-            "FROM repair_order WHERE student_account = #{account}")
+            "FROM repair_order WHERE student_account = #{account} order by create_time desc")
     List<RepairOrder> selectListByAccount(String account);
 
     // 全部查询 - 管理员用,只查必要字段
     @Select("SELECT id, device_type, description, status, priority, " +
             "dorm_building, dorm_room, create_time " +
-            "FROM repair_order")
+            "FROM repair_order order by create_time desc ")
     List<RepairOrder> selectAll();
 
     // 详情查询 - 查全部字段
@@ -35,13 +35,13 @@ public interface RepairOrderDao {
     // 按状态查询- 只查必要字段
     @Select("SELECT id, device_type, description, status, priority, " +
             "dorm_building, dorm_room, create_time " +
-            "FROM repair_order WHERE status = #{status}")
+            "FROM repair_order WHERE status = #{status} order by create_time desc")
     List<RepairOrder> selectByStatus(String status);
 
     // 按楼栋查询- 只查必要字段（终极版：自动忽略所有空格）
     @Select("SELECT id, device_type, description, status, priority, " +
             "dorm_building, dorm_room, create_time " +
-            "FROM repair_order WHERE REPLACE(dorm_building, ' ', '') LIKE CONCAT('%', REPLACE(#{dormBuilding}, ' ', ''), '%')")
+            "FROM repair_order WHERE REPLACE(dorm_building, ' ', '') LIKE CONCAT('%', REPLACE(#{dormBuilding}, ' ', ''), '%') order by create_time desc")
     List<RepairOrder> selectByDormBuilding(String dormBuilding);
 
 
