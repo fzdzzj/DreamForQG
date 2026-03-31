@@ -89,7 +89,8 @@ public class MessageServiceImpl implements MessageService {
 
         log.info("发送消息成功，消息ID：{}，接收用户：{}", message.getId(), userAccount);
         redisTemplate.delete("msgUnreadCount_"+userAccount);
-        redisTemplate.delete("msg_"+userAccount);
+        String pattern = "msg:" + userAccount + "*";
+        redisTemplate.delete(redisTemplate.keys(pattern));
         redisTemplate.delete("msgStats_"+userAccount);
     }
 
@@ -222,7 +223,8 @@ public class MessageServiceImpl implements MessageService {
             log.error(MessageConstant.MESSAGE_READ_FAILED+"，消息ID：{}", messageId);
             throw new BusinessException(500,MessageConstant.MESSAGE_READ_FAILED);
         }
-        redisTemplate.delete("msg_"+currentUser.getAccount());
+        String pattern = "msg:" + currentUser.getAccount() + "*";
+        redisTemplate.delete(redisTemplate.keys(pattern));
         redisTemplate.delete("msgStats_"+currentUser.getAccount());
         redisTemplate.delete("msgUnreadCount_"+currentUser.getAccount());
         log.info("标记消息已读成功，消息ID：{}", messageId);
@@ -242,7 +244,8 @@ public class MessageServiceImpl implements MessageService {
             log.error(MessageConstant.MESSAGE_READ_FAILED);
             throw new BusinessException(500,MessageConstant.MESSAGE_READ_FAILED);
         }
-        redisTemplate.delete("msg_"+currentUser.getAccount());
+        String pattern = "msg:" + currentUser.getAccount() + "*";
+        redisTemplate.delete(redisTemplate.keys(pattern));
         redisTemplate.delete("msgStats_"+currentUser.getAccount());
         redisTemplate.delete("msgUnreadCount_"+currentUser.getAccount());
         log.info("标记所有消息已读完成，用户：{}，更新条数：{}", currentUser.getAccount(), rows);
@@ -267,7 +270,8 @@ public class MessageServiceImpl implements MessageService {
             log.error(MessageConstant.DELETE_FAILED+"，消息ID：{}", messageId);
             throw new BusinessException(500,MessageConstant.DELETE_FAILED);
         }
-        redisTemplate.delete("msg_"+currentUser.getAccount());
+        String pattern = "msg:" + currentUser.getAccount() + "*";
+        redisTemplate.delete(redisTemplate.keys(pattern));
         redisTemplate.delete("msgStats_"+currentUser.getAccount());
         redisTemplate.delete("msgUnreadCount_"+currentUser.getAccount());
         log.info("删除消息成功，消息ID：{}", messageId);
@@ -298,7 +302,8 @@ public class MessageServiceImpl implements MessageService {
             log.error(MessageConstant.DELETE_FAILED);
             throw new BusinessException(500,MessageConstant.DELETE_FAILED);
         }
-        redisTemplate.delete("msg_"+currentUser.getAccount());
+        String pattern = "msg:" + currentUser.getAccount() + "*";
+        redisTemplate.delete(redisTemplate.keys(pattern));
         redisTemplate.delete("msgStats_"+currentUser.getAccount());
         redisTemplate.delete("msgUnreadCount_"+currentUser.getAccount());
         log.info("批量删除消息成功，用户：{}，删除条数：{}", currentUser.getAccount(), rows);
@@ -329,7 +334,8 @@ public class MessageServiceImpl implements MessageService {
             log.error(MessageConstant.MESSAGE_READ_FAILED);
             throw new BusinessException(500,MessageConstant.MESSAGE_READ_FAILED);
         }
-        redisTemplate.delete("msg_"+currentUser.getAccount());
+        String pattern = "msg:" + currentUser.getAccount() + "*";
+        redisTemplate.delete(redisTemplate.keys(pattern));
         redisTemplate.delete("msgStats_"+currentUser.getAccount());
         redisTemplate.delete("msgUnreadCount_"+currentUser.getAccount());
         log.info("批量标记已读成功，用户：{}，更新条数：{}", currentUser.getAccount(), rows);

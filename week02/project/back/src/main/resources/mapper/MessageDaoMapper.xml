@@ -18,7 +18,7 @@
             AND type = #{type}
         </if>
 
-        ORDER BY is_read ASC, create_time DESC
+        ORDER BY is_read DESC, create_time DESC
         LIMIT #{offset}, #{pageSize}
     </select>
 

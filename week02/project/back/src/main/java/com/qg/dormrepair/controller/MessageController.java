@@ -18,6 +18,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 消息功能控制器
@@ -78,7 +79,7 @@ public class MessageController {
             @Parameter(description = "每页数量", example = "10") @RequestParam(defaultValue = "10") Integer pageSize,
             @Parameter(description = "消息类型 1=系统消息 2=报修单消息 3=公告", example = "1")@RequestParam(required = false)String  type) {
         log.info("获取消息列表");
-        String key="msg_"+CurrentHolder.getCurrentUser().getAccount();
+        String key="msg:"+CurrentHolder.getCurrentUser().getAccount()+"_"+type+"_"+isRead+"_"+pageNum+"_"+pageSize;
 
         List<MessageVO>list=(List<MessageVO>)redisTemplate.opsForValue().get(key);
         if(list!=null&&list.size()>0){
@@ -90,6 +91,7 @@ public class MessageController {
         redisTemplate.opsForValue().set(key,pageResult.getList());
         return Result.success(pageResult);
     }
+
 
     /**
      * 标记消息为已读
