@@ -1,8 +1,9 @@
 package com.qg.dormrepair.util;
 
-import com.aliyun.oss.*;
-import com.aliyun.oss.common.auth.CredentialsProviderFactory;
-import com.aliyun.oss.common.auth.EnvironmentVariableCredentialsProvider;
+import com.aliyun.oss.OSS;
+import com.aliyun.oss.OSSClientBuilder;
+import com.aliyun.oss.common.auth.CredentialsProvider;
+import com.aliyun.oss.common.auth.DefaultCredentialProvider;
 import com.aliyun.oss.common.comm.SignVersion;
 import com.qg.dormrepair.config.AliyunOSSProperties;
 import com.qg.dormrepair.constants.MessageConstant;
@@ -12,102 +13,79 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
-/**
- * 阿里云OSS文件上传工具类
- * 提供图片/文件上传到阿里云OSS的通用功能，自动生成文件名、目录、返回访问地址
- *
- * @author qg
- * @date 2026-03-28
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class AliyunOSSOperator {
 
-    /**
-     * 阿里云OSS配置属性
-     */
     private final AliyunOSSProperties aliyunOSSProperties;
+    private static final DateTimeFormatter DIR_FORMATTER = DateTimeFormatter.ofPattern("yyyy/MM");
 
-    /**
-     * 上传文件到阿里云OSS
-     *
-     * @param content 文件字节数组
-     * @param originalFilename 原始文件名
-     * @return 上传后文件的访问URL
-     * @throws Exception 上传过程中出现异常直接抛出
-     */
-    public String upload(byte[] content, String originalFilename) throws Exception {
+    public String upload(byte[] content, String originalFilename) {
+        if (content == null || content.length == 0) {
+            throw new BusinessException(500, "文件不能为空");
+        }
+
         String endpoint = aliyunOSSProperties.getEndpoint();
         String region = aliyunOSSProperties.getRegion();
         String bucketName = aliyunOSSProperties.getBucketName();
+        String accessKeyId = aliyunOSSProperties.getAccessKeyId();
+        String accessKeySecret = aliyunOSSProperties.getAccessKeySecret();
 
-        // 生成上传目录：按日期归类  yyyy/MM
-        String dir = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM"));
-        // 生成唯一文件名：UUID + 后缀名
-        String newFileName = UUID.randomUUID().toString().replace("-", "") + getFileExtension(originalFilename);
-        // OSS中的完整文件路径
-        String objectName = dir + "/" + newFileName;
+        // 生成文件路径
+        String dir = LocalDate.now().format(DIR_FORMATTER);
+        String ext = getFileExtension(originalFilename);
+        String fileName = UUID.randomUUID().toString().replace("-", "") + ext;
+        String objectName = dir + "/" + fileName;
 
         OSS ossClient = null;
-        try {
-            // 从环境变量获取AK/SK凭证
-            EnvironmentVariableCredentialsProvider credentialsProvider =
-                    CredentialsProviderFactory.newEnvironmentVariableCredentialsProvider();
+        try (InputStream is = new ByteArrayInputStream(content)) {
 
-            // OSS客户端配置
-            ClientBuilderConfiguration clientBuilderConfiguration = new ClientBuilderConfiguration();
-            clientBuilderConfiguration.setSignatureVersion(SignVersion.V4);
+            CredentialsProvider credentialsProvider = new DefaultCredentialProvider(accessKeyId, accessKeySecret);
 
-            // 创建OSS客户端
+            com.aliyun.oss.ClientBuilderConfiguration conf = new com.aliyun.oss.ClientBuilderConfiguration();
+            conf.setSignatureVersion(SignVersion.V4);
+
             ossClient = OSSClientBuilder.create()
                     .endpoint(endpoint)
                     .credentialsProvider(credentialsProvider)
-                    .clientConfiguration(clientBuilderConfiguration)
+                    .clientConfiguration(conf)
                     .region(region)
                     .build();
 
-            // 执行上传
-            ossClient.putObject(bucketName, objectName, new ByteArrayInputStream(content));
-            log.info("图片上传至OSS成功，文件名：{}", objectName);
+            // 上传
+            ossClient.putObject(bucketName, objectName, is);
+            log.info("OSS上传成功：{}", objectName);
 
-            // 拼接返回可访问的URL
-            return endpoint.split("://")[0] + "://" + bucketName + "." + endpoint.split("://")[1] + "/" + objectName;
+            return buildUrl(endpoint, bucketName, objectName);
 
-        } catch (OSSException e) {
-            log.error(MessageConstant.OSS_SERVICE_ERROR+"，上传失败：{}", e.getMessage());
-            throw new BusinessException(500,MessageConstant.OSS_SERVICE_ERROR + e.getErrorMessage());
         } catch (Exception e) {
-            log.error(MessageConstant.IMAGE_UPLOAD_FAILED+"：{}", e.getMessage());
-            throw new BusinessException(500,MessageConstant.IMAGE_UPLOAD_FAILED + e.getMessage());
+            log.error("OSS上传失败", e);
+            throw new BusinessException(500, MessageConstant.IMAGE_UPLOAD_FAILED);
         } finally {
-            // 关闭OSS客户端，释放资源
             if (ossClient != null) {
-                try {
-                    ossClient.shutdown();
-                    log.debug("OSS客户端已正常关闭");
-                } catch (Exception e) {
-                    log.warn("关闭OSS客户端失败：{}", e.getMessage());
-                }
+                ossClient.shutdown();
             }
         }
     }
 
-    /**
-     * 获取文件扩展名（如 .png、.jpg）
-     *
-     * @param filename 原始文件名
-     * @return 扩展名（带.）
-     */
-    private String getFileExtension(String filename) {
-        if (filename == null || !filename.contains(".")) {
-            return ".png";
+    private String buildUrl(String endpoint, String bucketName, String objectName) {
+        if (endpoint.startsWith("http://")) {
+            return "http://" + bucketName + "." + endpoint.substring(7) + "/" + objectName;
+        } else if (endpoint.startsWith("https://")) {
+            return "https://" + bucketName + "." + endpoint.substring(8) + "/" + objectName;
+        } else {
+            return "https://" + bucketName + "." + endpoint + "/" + objectName;
         }
-        return filename.substring(filename.lastIndexOf("."));
     }
 
+    private String getFileExtension(String filename) {
+        if (filename == null || !filename.contains(".")) return ".png";
+        return filename.substring(filename.lastIndexOf("."));
+    }
 }

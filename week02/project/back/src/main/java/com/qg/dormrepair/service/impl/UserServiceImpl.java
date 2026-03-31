@@ -271,13 +271,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean isDormBound(String account) {
         User user = userDao.findByAccount(account);
+        log.error(user.getDormBuilding());
         if (user == null) {
             log.warn("查询宿舍绑定状态失败：用户不存在，账号：{}", account);
             return false;
         }
 
-        boolean isBound = user.getDormBuilding() != null && !user.getDormBuilding().isEmpty()
-                && user.getDormRoom() != null && !user.getDormRoom().isEmpty();
+        boolean isBound = user.getDormBuilding() != null && !user.getDormBuilding().trim().isEmpty()
+                && user.getDormRoom() != null && !user.getDormRoom().trim().isEmpty();
 
         log.info("查询宿舍绑定状态，账号：{}，是否绑定：{}", account, isBound);
         return isBound;

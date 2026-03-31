@@ -9,11 +9,12 @@
 # .gitignore
 
 # ==================== 敏感配置文件 ====================
-#.env
+.env
 .env.local
 .env.*.local
 application-local.yaml
 application-prod.yaml
+application-dev.yml
 *.key
 *.pem
 #保留模板文件

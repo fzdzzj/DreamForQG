@@ -2,6 +2,8 @@
 spring:
   application:
     name: dorm-repair
+  config:
+    import: optional:file:.env[.properties]
 
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
@@ -44,7 +46,7 @@ mybatis:
   # 3. MyBatis 高级配置
   configuration:
     # 开启下划线转驼峰命名映射
-    map-unders-to-camel-case: true
+    map-underscore-to-camel-case: true
     # 交给Spring日志管理
     log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
     # 自动映射行为配置
@@ -61,7 +63,7 @@ jwt:
 aliyun:
   oss:
     endpoint: ${OSS_ENDPOINT}
-    region: ${OSS_REGION}
+    region: ${OSS_REGION:cn-beijing}
     max-file-size: 10MB
     allowed-types: image/jpeg,image/png,image/gif,image/webp,application/pdf,text/plain
 

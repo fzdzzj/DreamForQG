@@ -12,4 +12,6 @@ public class AliyunOSSProperties {
     private String bucketName;
     private String region;
     private String baseUrl;
+    private String accessKeyId;
+    private String accessKeySecret;
 }
