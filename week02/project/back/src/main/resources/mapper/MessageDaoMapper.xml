@@ -10,14 +10,10 @@
         FROM message
         WHERE user_account = #{userAccount}
 
-        <!-- 阅读状态筛选（你原来有） -->
+        <!-- 阅读状态筛选 -->
         <if test="isRead != null">
             AND is_read = #{isRead}
         </if>
-
-        <!-- ====================== -->
-        <!-- 🔥 消息类型筛选（我加上） -->
-        <!-- ====================== -->
         <if test="type != null and type != ''">
             AND type = #{type}
         </if>
