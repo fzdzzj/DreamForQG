@@ -4,7 +4,7 @@ import com.qg.dormrepair.annotation.OperationLog;
 import com.qg.dormrepair.mapper.OperationLogDao;
 import com.qg.dormrepair.pojo.OperationLogEnity;
 import com.qg.dormrepair.util.CurrentHolder;
-import com.qg.dormrepair.util.JwtUtils; // 替换成你项目的实际JWT工具类路径
+import com.qg.dormrepair.util.JwtUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
