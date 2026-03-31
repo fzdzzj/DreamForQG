@@ -227,7 +227,6 @@ const loadLogs = async () => {
     total.value = res.data.total
   } catch (error) {
     console.error('加载日志失败:', error)
-    ElMessage.error('加载日志失败')
   } finally {
     // 关闭loading
     loading.value = false
@@ -305,7 +304,6 @@ const handleBatchDelete = async () => {
     // 点击取消不报错
     if (error !== 'cancel') {
       console.error('删除失败:', error)
-      ElMessage.error('删除失败')
     }
   }
 }

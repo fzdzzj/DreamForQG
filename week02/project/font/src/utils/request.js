@@ -79,7 +79,7 @@ request.interceptors.response.use(
     // 情况2：非 401 错误（500服务器错误、403权限不足、404不存在）
     // 直接提示错误信息，不做 token 刷新
     if (response.status !== 401) {
-      const msg = response.data?.msg || '服务器异常'
+      const msg = response.data?.message || response.data?.msg || '服务器异常'
       ElMessage.error(msg)
       return Promise.reject(error)
     }

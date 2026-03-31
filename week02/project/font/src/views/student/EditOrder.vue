@@ -228,12 +228,10 @@ const handleSubmit = async () => {
       // 跳回我的报修单
       router.push('/student/my-orders')
     } else {
-      ElMessage.error(res.msg || '修改失败')
     }
 
   } catch (err) {
     console.error('修改异常', err)
-    ElMessage.error('修改失败')
   } finally {
     loading.value = false
   }

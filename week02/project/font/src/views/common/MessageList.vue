@@ -327,7 +327,6 @@ const handleMarkRead = async (id) => {
     loadMessages()
   } catch (error) {
     console.error('标记失败:', error)
-    ElMessage.error('标记失败')
   }
 }
 
@@ -346,7 +345,6 @@ const handleDelete = async (id) => {
   } catch (error) {
     if (error !== 'cancel') {
       console.error('删除失败:', error)
-      ElMessage.error('删除失败')
     }
   }
 }
@@ -367,7 +365,6 @@ const handleMarkAllRead = async () => {
   } catch (error) {
     if (error !== 'cancel') {
       console.error('标记失败:', error)
-      ElMessage.error('标记失败')
     }
   }
 }
@@ -381,7 +378,6 @@ const handleBatchMarkRead = async () => {
     loadMessages()
   } catch (error) {
     console.error('标记失败:', error)
-    ElMessage.error('标记失败')
   }
 }
 
@@ -401,7 +397,6 @@ const handleBatchDelete = async () => {
   } catch (error) {
     if (error !== 'cancel') {
       console.error('删除失败:', error)
-      ElMessage.error('删除失败')
     }
   }
 }

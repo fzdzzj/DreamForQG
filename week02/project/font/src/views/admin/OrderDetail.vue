@@ -149,7 +149,6 @@ const loadOrderDetail = async () => {
     order.value = res.data
   } catch (error) {
     console.error('加载失败:', error)
-    ElMessage.error('加载失败')
   } finally {
     loading.value = false
   }

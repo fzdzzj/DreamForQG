@@ -106,7 +106,6 @@ const handleRegister = async () => {
     router.push('/login')
   } catch (error) {
     console.error('注册失败:', error)
-    ElMessage.error('注册失败：' + (error.message || '账号已存在或注册失败'))
   } finally {
     loading.value = false
   }

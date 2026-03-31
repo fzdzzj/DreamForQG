@@ -135,7 +135,6 @@ const handleLogin = async () => {
   } catch (error) {
     // 登录失败：打印错误 + 提示用户
     console.error('登录失败:', error)
-    ElMessage.error('登录失败：' + (error.message || '账号或密码错误'))
   } finally {
     // 无论成功失败，都关闭加载状态
     loading.value = false

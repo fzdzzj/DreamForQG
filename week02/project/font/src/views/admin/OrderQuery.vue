@@ -235,7 +235,6 @@ const loadOrders = async () => {
     total.value = res.data?.total || 0
   } catch (error) {
     console.error('查询失败:', error)
-    ElMessage.error('查询失败')
   } finally {
     // 关闭加载
     loading.value = false

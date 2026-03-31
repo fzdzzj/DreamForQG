@@ -146,7 +146,6 @@ const handleUploadSuccess = (response, file, uploadFileList) => {
     fileList.value = uploadFileList
     ElMessage.success('图片上传成功')
   } else {
-    ElMessage.error('图片上传失败：' + (response.msg || '未知错误'))
     // 上传失败，移除当前文件
     fileList.value = uploadFileList.filter(f => f !== file)
   }
@@ -186,11 +185,9 @@ const handleSubmit = async () => {
       // 提交成功，跳转到我的报修单列表
       router.push('/student/my-orders')
     } else {
-      ElMessage.error(res.msg || '提交失败')
     }
   } catch (error) {
     console.error('提交异常：', error)
-    ElMessage.error('提交失败，服务器异常')
   } finally {
     loading.value = false
   }
