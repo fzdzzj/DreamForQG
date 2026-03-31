@@ -16,7 +16,7 @@ public class JwtProperties {
     private String signKey;
 
     /**
-     * Access Token 过期时间（2 小时）
+     * Access Token 过期时间（1天）
      */
     private Long expire;
 

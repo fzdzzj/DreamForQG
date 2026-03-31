@@ -45,12 +45,12 @@ public class AliyunOSSOperator {
 
         OSS ossClient = null;
         try (InputStream is = new ByteArrayInputStream(content)) {
-
+            // 创建OSSClient实例
             CredentialsProvider credentialsProvider = new DefaultCredentialProvider(accessKeyId, accessKeySecret);
-
+            // 创建ClientBuilderConfiguration
             com.aliyun.oss.ClientBuilderConfiguration conf = new com.aliyun.oss.ClientBuilderConfiguration();
             conf.setSignatureVersion(SignVersion.V4);
-
+            /// 创建OSSClient实例
             ossClient = OSSClientBuilder.create()
                     .endpoint(endpoint)
                     .credentialsProvider(credentialsProvider)

@@ -24,7 +24,7 @@ public class PerformanceAspect {
 
             // 超过 1 秒的方法记录警告
             if (costTime > 1000) {
-                log.warn("⚠️ 方法执行缓慢：{} | 耗时：{}ms", methodName, costTime);
+                log.warn(" 方法执行缓慢：{} | 耗时：{}ms", methodName, costTime);
             } else {
                 log.debug("✓ 方法执行：{} | 耗时：{}ms", methodName, costTime);
             }

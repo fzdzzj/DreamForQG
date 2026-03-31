@@ -15,9 +15,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "通用分页响应结果")
-public class PageResult<T> implements Serializable {
+public class PageResult<T>  {
 
-    private static final long serialVersionUID = 1L;
     @Schema(description = "当前页数据列表")
     private List<T> list;
 

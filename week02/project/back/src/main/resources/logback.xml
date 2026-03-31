@@ -24,11 +24,4 @@
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50}-%msg%n</pattern>
         </encoder>
     </appender>
-
-    <!-- 日志输出级别 -->
-    <root level="INFO">
-        <appender-ref ref="STDOUT"/>
-        <appender-ref ref="FILE"/>
-    </root>
-    <logger name="com.qg.dormrepair" level="DEBUG"/>
 </configuration>

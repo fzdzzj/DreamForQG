@@ -102,7 +102,7 @@ public class LogAspect {
                 }
             }
 
-            // 如果Token解析失败，再尝试从上下文拿（兜底）
+            // 如果Token解析失败，再尝试从上下文拿
             if (account == null) {
                 var currentUser = CurrentHolder.getCurrentUser();
                 account = currentUser != null ? currentUser.getAccount() : null;
@@ -151,7 +151,7 @@ public class LogAspect {
     }
 
     /**
-     * 从登录/注册DTO中精准提取account字段（适配你的DTO结构）
+     * 从登录/注册DTO中精准提取account字段
      */
     private String getAccountFromDTO(Object[] args) {
         if (args == null || args.length == 0) {

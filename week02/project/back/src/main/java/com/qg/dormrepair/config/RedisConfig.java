@@ -31,16 +31,15 @@ public class RedisConfig {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory);
 
-        // 1. Key序列化（去掉二进制前缀）
+        // 1. Key 序列化（去掉二进制前缀）
         StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
         redisTemplate.setKeySerializer(stringRedisSerializer);
         redisTemplate.setHashKeySerializer(stringRedisSerializer);
 
-        // 2. Value序列化（支持LocalDateTime）
-        Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<>(Object.class);
+        // 2. Value 序列化（支持 LocalDateTime）
         ObjectMapper objectMapper = new ObjectMapper();
 
-        // 核心：注册Java 8日期模块，并配置LocalDateTime序列化规则
+        // 核心：注册 Java 8 日期模块，并配置 LocalDateTime 序列化规则
         JavaTimeModule javaTimeModule = new JavaTimeModule();
         // 序列化：LocalDateTime -> 字符串
         javaTimeModule.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(DATE_TIME_FORMATTER));
@@ -51,9 +50,10 @@ public class RedisConfig {
         objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
         objectMapper.activateDefaultTyping(objectMapper.getPolymorphicTypeValidator(), ObjectMapper.DefaultTyping.NON_FINAL);
 
-        jackson2JsonRedisSerializer.setObjectMapper(objectMapper);
+        // 使用新的构造函数，直接传入 ObjectMapper（替代已弃用的 setObjectMapper 方法）
+        Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<>(objectMapper, Object.class);
 
-        // 配置Value序列化
+        // 配置 Value 序列化
         redisTemplate.setValueSerializer(jackson2JsonRedisSerializer);
         redisTemplate.setHashValueSerializer(jackson2JsonRedisSerializer);
 

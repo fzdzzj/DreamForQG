@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.qg.dormrepair.mapper.RepairOrderDao">
-
+    <!--更新报修单    -->
     <update id="update">
         update repair_order
         <set>
@@ -14,6 +14,7 @@
         </set>
         where id = #{id}
     </update>
+    <!--条件查询    -->
     <select id="selectByCondition" resultType="com.qg.dormrepair.vo.RepairListVO">
         SELECT id, device_type, status, priority, dorm_building, dorm_room, create_time
         FROM repair_order
@@ -48,7 +49,7 @@
         </where>
         ORDER BY create_time DESC
     </select>
-
+    <!--计算符合条件的总条数    -->
     <select id="countByCondition" resultType="java.lang.Long">
         SELECT COUNT(*) FROM repair_order
         <where>
