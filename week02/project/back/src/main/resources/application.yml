@@ -1,9 +1,8 @@
-# Spring 核心配置
+# 所有环境共用
 spring:
   application:
     name: dorm-repair
 
-  # 激活环境（默认 dev，优先读取环境变量）
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
 
@@ -14,73 +13,62 @@ spring:
       max-file-size: 10MB
       max-request-size: 50MB
 
-  # 数据源（具体配置由环境配置文件覆盖）
+  # 基础数据源配置（具体值由环境配置覆盖）
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${SPRING_DATASOURCE_URL:}
-    username: ${SPRING_DATASOURCE_USERNAME:}
-    password: ${SPRING_DATASOURCE_PASSWORD:}
 
+  # Redis 基础配置
   data:
     redis:
       url: ${SPRING_REDIS_URL:redis://localhost:6379/10}
 
-
-
+# ==============================
 # 服务器配置
+# ==============================
 server:
   port: ${SERVER_PORT:8080}
 
+# ==============================
 # 日志基础配置
+# ==============================
 logging:
   level:
     root: ${LOG_LEVEL:INFO}
 
-# MyBatis 配置
+# MyBatis 核心配置
 mybatis:
-  # Mapper XML 文件路径
+  # 1. Mapper XML 文件扫描路径
   mapper-locations: classpath:mapper/*.xml
-  # 实体类别名包
+  # 2. 实体类别名包扫描
   type-aliases-package: com.qg.dormrepair.pojo
+  # 3. MyBatis 高级配置
   configuration:
-    # 下划线转驼峰
-    map-underscore-to-camel-case: true
-    # 控制台打印 SQL（生产环境建议关闭）
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-    # 自动映射等级
+    # 开启下划线转驼峰命名映射
+    map-unders-to-camel-case: true
+    # 交给Spring日志管理
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+    # 自动映射行为配置
     auto-mapping-behavior: FULL
 
 # JWT 认证配置
 jwt:
-  # 签名密钥
-  sign-key: ${JWT_SIGN_KEY:dGhpcyBpcyBhIHNlY3VyZSBrZXkgZm9yIEpXVCBzaWduaW5nIQ==}
-  # Token 过期时间（默认 1 天）
-  expire: ${JWT_EXPIRE:86400000}
-  # 刷新 Token 过期时间（默认 7 天）
-  refresh-expire: ${JWT_REFRESH_EXPIRE:604800000}
-  # 刷新 Token 签名密钥
-  refresh-sign-key: ${JWT_REFRESH_SIGN_KEY:dGhpcyBpcyBhIHNlY3VyZSBrZXkgZm9yIEpXVCBzaWduaW5nIQ==}
+  sign-key: ${JWT_SIGN_KEY}
+  expire: ${JWT_EXPIRE}
+  refresh-expire: ${JWT_REFRESH_EXPIRE}
+  refresh-sign-key: ${JWT_REFRESH_SIGN_KEY}
 
-# 阿里云 OSS 文件存储配置
+# 阿里云 OSS 基础配置
 aliyun:
   oss:
-    access-key-id: ${OSS_ACCESS_KEY_ID:}
-    access-key-secret: ${OSS_ACCESS_KEY_SECRET:}
-    endpoint: ${OSS_ENDPOINT:https://oss-cn-beijing.aliyuncs.com}
-    bucket-name: ${OSS_BUCKET_NAME:}
-    region: ${OSS_REGION:cn-beijing}
-    # 单文件最大限制
+    endpoint: ${OSS_ENDPOINT}
+    region: ${OSS_REGION}
     max-file-size: 10MB
-    # 访问基础路径（自动拼接）
-    base-url: https://${aliyun.oss.bucket-name}.${aliyun.oss.endpoint}/
-    # 允许上传的文件类型
     allowed-types: image/jpeg,image/png,image/gif,image/webp,application/pdf,text/plain
 
-# SpringDoc + Swagger 接口文档
+# 接口文档配置
 springdoc:
   api-docs:
     path: /api-docs
   swagger-ui:
     path: /swagger-ui.html
-    # 接口按请求方法排序
     operationsSorter: method

@@ -159,4 +159,23 @@ public class JwtUtils {
         Claims claims = parseToken(token);
         return claims == null ? null : claims.get("role", String.class);
     }
+    /**
+     * 获取 Token 剩余过期时间（秒）
+     * 专门给 Redis 黑名单自动过期用
+     */
+    public long getExpireFromToken(String token) {
+        try {
+            Claims claims = parseToken(token);
+            if (claims == null) {
+                return -1;
+            }
+            long expireTime = claims.getExpiration().getTime();
+            long now = System.currentTimeMillis();
+            return (expireTime - now) / 1000;
+        } catch (Exception e) {
+            log.error("获取Token剩余过期时间失败", e);
+            return -1;
+        }
+    }
+
 }
