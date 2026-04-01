@@ -43,7 +43,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>${spring.boot.version}</version> <!-- 引用统一版本变量 -->
+        <version>3.2.5</version> <!-- 引用统一版本变量 -->
         <relativePath/>
     </parent>
 
@@ -83,7 +83,7 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- ✅ 新版 JJWT（引用统一版本） -->
+        <!--  新版 JJWT（引用统一版本） -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
@@ -102,7 +102,7 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- ✅ JAXB 正确版本（引用统一版本）-->
+        <!--  JAXB 正确版本（引用统一版本）-->
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>
