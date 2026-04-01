@@ -60,7 +60,6 @@ public class UploadController {
             return Result.error(413, "文件大小不能超过 " + maxFileSize.toMegabytes() + "MB");
         }
         String url = aliyunOSSOperator.upload(file.getBytes(), file.getOriginalFilename());
-        log.error("文件上传成功，url：{}", url);
         return Result.success(url);
     }
 }

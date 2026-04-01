@@ -80,7 +80,6 @@ public class TokenFilter implements Filter {
 
             // 5. 必须使用 accessToken
             String tokenType = claims.get("type", String.class);
-            log.error("Token类型：{}", tokenType);
             if (!"access".equals(tokenType)) {
                 log.warn("禁止使用RefreshToken访问接口：{} {}", method, uri);
                 writeJson(response, 401, "Token类型错误");
@@ -96,7 +95,6 @@ public class TokenFilter implements Filter {
             // ===================== 数据库 RBAC 核心 =====================
             // 从 TOKEN 中取出 权限列表（数据库查询后存入JWT）
             Set<String> permissions = jwtUtils.getPermissionsFromToken(claims);
-            log.error("权限列表：{}", permissions);
             // 7. 权限校验
             if (!hasPermission(uri, method, permissions)) {
                 log.warn("权限不足：{} {}", method, uri);

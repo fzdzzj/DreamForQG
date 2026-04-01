@@ -111,12 +111,9 @@ public class JwtUtils {
      */
     public Set<String> getPermissionsFromToken(Claims claims) {
         try {
-            // 打印完整载荷信息，方便调试查看Token里到底存了什么
-            log.error("===== 完整 claims：{} =====", claims);
 
             // 从JWT的载荷中取出 permissions 字段（存储的是用户权限列表）
             Object obj = claims.get("permissions");
-            log.error("===== permissions 原始值：{} =====", obj);
 
             // ===================== 核心兼容逻辑 =====================
             // 作用：无论权限是 List 类型、Set 类型、数组类型，都能统一处理

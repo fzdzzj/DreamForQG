@@ -271,7 +271,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean isDormBound(String account) {
         User user = userDao.findByAccount(account);
-        log.error(user.getDormBuilding());
         if (user == null) {
             log.warn("查询宿舍绑定状态失败：用户不存在，账号：{}", account);
             return false;
