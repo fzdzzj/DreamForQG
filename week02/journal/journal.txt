@@ -1,3 +1,5 @@
 周记
 https://kcnx16lwgwxf.feishu.cn/wiki/YX4awE51Uiox5DkCYh1cjgSSn4e?from=from_copylink
 
+为了升级相关功能，如redis和公共字段填充借鉴了外卖，下面是做的一些笔记
+https://kcnx16lwgwxf.feishu.cn/wiki/Fb45wBiezi5MQEk5dmwc4QgPnQf?from=from_copylink
