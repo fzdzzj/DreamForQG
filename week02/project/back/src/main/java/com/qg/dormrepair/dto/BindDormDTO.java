@@ -4,6 +4,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
+/**
+ * 宿舍绑定DTO
+ */
 @Data
 @Schema(description = "宿舍绑定请求参数")
 public class BindDormDTO {

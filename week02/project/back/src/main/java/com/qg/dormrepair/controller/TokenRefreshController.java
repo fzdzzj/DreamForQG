@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+/**
+ * 刷新token功能控制器接口
+ */
 @Slf4j
 @RestController
 @RequestMapping("/api/auth")

@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * 报修单
+ * 报修单实体类
  */
 @Data
 @AllArgsConstructor

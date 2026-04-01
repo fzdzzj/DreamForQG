@@ -12,6 +12,9 @@ import org.apache.ibatis.annotations.Param;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ *日志数据访问接口
+ */
 @Mapper
 public interface OperationLogDao {
 

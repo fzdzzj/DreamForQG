@@ -23,7 +23,7 @@ import java.time.format.DateTimeFormatter;
 @Configuration
 public class RedisConfig {
 
-    // 定义日期格式化规则（和你的项目保持一致）
+    // 定义日期格式化规则
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Bean

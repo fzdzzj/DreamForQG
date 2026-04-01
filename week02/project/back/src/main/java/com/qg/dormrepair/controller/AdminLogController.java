@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 
+/**
+ * 管理员日志功能控制器
+ */
 @Slf4j
 @RestController
 @RequestMapping("/api/admin/logs")

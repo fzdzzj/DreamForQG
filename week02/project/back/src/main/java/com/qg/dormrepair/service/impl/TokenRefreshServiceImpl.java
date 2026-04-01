@@ -15,7 +15,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Token 刷新服务实现类（无泛型版）
+ * Token 刷新服务实现类
  */
 @Slf4j
 @Service

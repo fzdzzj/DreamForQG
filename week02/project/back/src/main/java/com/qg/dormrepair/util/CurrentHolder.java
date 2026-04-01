@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 /**
  * 当前线程用户信息上下文工具类
  * 基于 ThreadLocal 实现，在整个请求周期内存储当前登录用户的账号与角色信息
- * 用于在 Controller / Service / Mapper 层随时获取当前用户身份
+ * 用于在 Controller / Service  层随时获取当前用户身份
  */
 public class CurrentHolder {
 

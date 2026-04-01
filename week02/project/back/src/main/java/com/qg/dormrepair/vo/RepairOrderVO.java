@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * 报修单详情VO（返回全部字段）
+ * 报修单详情VO
  * 用于单个报修单详情查询
  */
 @Data

@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+/**
+ * 用户权限功能控制器
+ */
 @Slf4j
 @RestController
 @RequestMapping("/api/auth")

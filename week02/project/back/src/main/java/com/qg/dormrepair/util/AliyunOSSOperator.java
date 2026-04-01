@@ -18,6 +18,9 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
+/**
+ * 阿里云上传工具类
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor

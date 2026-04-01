@@ -1,5 +1,8 @@
 package com.qg.dormrepair.constants;
 
+/**
+ * 用户操作反馈常量类
+ */
 public class MessageConstant {
 
     // 通用

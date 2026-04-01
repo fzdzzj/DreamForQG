@@ -8,7 +8,6 @@ import java.security.MessageDigest;
 /**
  * 密码加密工具类
  * 提供基于 MD5 的密码加密与密码比对功能
- * 注意：MD5 安全性较低，生产环境使用 BCrypt
  */
 @Slf4j
 public class PasswordUtil {

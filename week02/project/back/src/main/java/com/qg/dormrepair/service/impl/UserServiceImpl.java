@@ -32,9 +32,6 @@ import java.util.stream.Collectors;
  * 包含：用户登录、注册、密码修改、宿舍绑定、Token生成等功能
  * 所有数据库写操作均添加事务控制，保证数据一致性
  * </p>
- *
- * @author qg
- * @date 2026-03-28
  */
 @Slf4j
 @Service

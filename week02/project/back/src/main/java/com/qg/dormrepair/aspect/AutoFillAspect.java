@@ -13,6 +13,9 @@ import org.springframework.stereotype.Component;
 import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 
+/**
+ * 公共字段填充切面类
+ */
 @Aspect
 @Component
 @Slf4j

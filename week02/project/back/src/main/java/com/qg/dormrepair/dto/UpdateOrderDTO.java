@@ -9,6 +9,9 @@ import lombok.Data;
 
 import java.util.List;
 
+/**
+ * 修改报修单DTO
+ */
 @Data
 @Schema(description = "修改报修单请求参数")
 public class UpdateOrderDTO {

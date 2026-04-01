@@ -6,6 +6,9 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 
+/**
+ * 监测service方法的性能
+ */
 @Slf4j
 @Aspect
 @Component

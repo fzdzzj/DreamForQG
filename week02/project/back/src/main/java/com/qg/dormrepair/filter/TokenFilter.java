@@ -16,6 +16,9 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.util.Set;
 
+/**
+ * 过滤器
+ */
 @Slf4j
 @WebFilter(filterName = "TokenFilter", urlPatterns = "/api/*")
 @RequiredArgsConstructor
