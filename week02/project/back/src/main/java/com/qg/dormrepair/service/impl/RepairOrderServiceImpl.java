@@ -115,8 +115,8 @@ public class RepairOrderServiceImpl implements RepairOrderService {
         log.info("创建报修单成功,学生账号:{}, 订单ID:{}", account, repairOrder.getId());
         redisTemplate.delete("order_"+ account);
         // 发送消息通知
-        messageService.sendMessage(account, "报修单提交成功", "您已成功提交报修单，请耐心等待处理", MessageType.REPAIR.getCode(), repairOrder.getId());
-        messageService.sendToRole(Role.ADMIN.getCode(), "有新的报修单", "请及时处理", MessageType.REPAIR.getCode(), repairOrder.getId());
+        messageService.sendMessage(account, "报修单提交成功", MessageConstant.ORDER_SUBMITED, MessageType.REPAIR.getCode(), repairOrder.getId());
+        messageService.sendToRole(Role.ADMIN.getCode(), "有新的报修单", MessageConstant.ORDER_SUBMIT, MessageType.REPAIR.getCode(), repairOrder.getId());
         log.info("发送报修单通知消息成功,学生账号:{}", account);
     }
 
@@ -268,7 +268,7 @@ public class RepairOrderServiceImpl implements RepairOrderService {
         String deviceType = repairOrderDao.getDeviceType(id);
         String deviceTypeName = DeviceType.getDeviceName(deviceType);
         messageService.sendMessage(order.getStudentAccount(),
-                "报修单状态更新",
+                MessageConstant.ORDER_RENEW,
                 "您的报修单" + statusName + "\n设备类型：" + deviceTypeName,
                 MessageType.REPAIR.getCode(), id);
         redisTemplate.delete("order_"+order.getStudentAccount());
@@ -451,7 +451,12 @@ public class RepairOrderServiceImpl implements RepairOrderService {
         redisTemplate.delete("order_"+account);
         redisTemplate.delete("orderEX_"+account+"_"+orderId);
         // 发送更新通知
-        messageService.sendMessage(account, "报修单更新成功", "您的报修单信息已修改", MessageType.REPAIR.getCode());
+        messageService.sendMessage(account, "报修单更新成功", MessageConstant.ORDER_MODIFIED, MessageType.REPAIR.getCode());
+    }
+
+    @Override
+    public List<Long> getOrdersByStatusAndTimeAndPriority(String repairOrderStatus, LocalDateTime time, String priority) {
+        return repairOrderDao.getOrdersByStatusAndTimeAndPriority(repairOrderStatus, time,priority);
     }
 
     // ==================== 私有转换方法 ====================

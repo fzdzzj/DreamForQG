@@ -63,4 +63,13 @@ public class MessageConstant {
 
     // 日志
     public static final String SELECT_DELETE_LOG = "请选择需要删除的日志";
+
+    //消息
+    public static final String MESSAGE_URGE_MAX="十万火急，立马处理";
+    public static final String MESSAGE_URGE_OVERDUE="问题挺大,请及时处理";
+    public static final String MESSAGE_URGE_COMMON="你还没处理订单,请及时处理";
+    public static final String ORDER_SUBMITED ="您已成功提交报修单" ;
+    public static final String ORDER_SUBMIT ="有新的报修单，请及时处理" ;
+    public static final String ORDER_RENEW ="你的报修单有新的状态";
+    public static final String ORDER_MODIFIED ="您的报修单更新成功" ;
 }

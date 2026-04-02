@@ -6,6 +6,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.util.Date;
 
@@ -18,6 +19,7 @@ import java.util.Date;
 @MapperScan("com.qg.dormrepair.mapper")  // MyBatis Mapper接口扫描
 @SpringBootApplication     // SpringBoot 自动配置
 @EnableAsync               // 开启异步任务支持
+@EnableScheduling //支持定时任务
 public class Application {
 
     /**

@@ -3,11 +3,13 @@ package com.qg.dormrepair.service;
 import com.qg.dormrepair.dto.CreateOrderDTO;
 import com.qg.dormrepair.dto.OrderQueryDTO;
 import com.qg.dormrepair.dto.UpdateOrderDTO;
+import com.qg.dormrepair.enums.RepairOrderStatus;
 import com.qg.dormrepair.exception.BusinessException;
 import com.qg.dormrepair.vo.PageResult;
 import com.qg.dormrepair.vo.RepairListVO;
 import com.qg.dormrepair.vo.RepairOrderVO;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -123,4 +125,6 @@ public interface RepairOrderService {
      * @throws BusinessException 未登录、无权限、订单不存在时抛出
      */
     void updateOrder(UpdateOrderDTO repairOrder);
+
+    List<Long> getOrdersByStatusAndTimeAndPriority(String repairOrderStatus, LocalDateTime time,String  priority);
 }

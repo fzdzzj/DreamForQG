@@ -3,10 +3,12 @@ package com.qg.dormrepair.mapper;
 import com.qg.dormrepair.annotation.AutoFill;
 import com.qg.dormrepair.dto.OrderQueryDTO;
 import com.qg.dormrepair.enums.DataBaseOperationType;
+import com.qg.dormrepair.enums.RepairOrderStatus;
 import com.qg.dormrepair.pojo.RepairOrder;
 import com.qg.dormrepair.vo.RepairListVO;
 import org.apache.ibatis.annotations.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -75,4 +77,7 @@ public interface RepairOrderDao {
 
     @Select("SELECT id FROM repair_order WHERE id = #{id} AND student_account = #{account}")
     Long isOrderBelongToUser(Long id, String account);
+
+    @Select("SELECT id FROM repair_order WHERE status = #{repairOrderStatus} AND create_time <= #{time} AND priority = #{priority}")
+    List<Long> getOrdersByStatusAndTimeAndPriority(String repairOrderStatus, LocalDateTime time,String  priority);
 }
