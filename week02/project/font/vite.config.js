@@ -40,7 +40,10 @@ export default defineConfig({
         // 是否使用 https，开发环境关闭证书验证
         secure: false
       }
-    }
+    },
+    allowedHosts: [
+      '42bc1522.r3.cpolar.top' // 把报错的域名加进来
+    ]
   },
 
   // 路径解析配置
