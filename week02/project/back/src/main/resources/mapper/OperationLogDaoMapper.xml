@@ -4,7 +4,7 @@
 
 <mapper namespace="com.qg.dormrepair.mapper.OperationLogDao">
 
-    <!-- 完整字段映射（已补全 request_uri / request_params） -->
+    <!-- 完整字段映射（已补全 request_uri -->
     <resultMap id="OperationLogResultMap" type="com.qg.dormrepair.pojo.OperationLogEnity">
         <id column="id" property="id"/>
         <result column="user_account" property="userAccount"/>

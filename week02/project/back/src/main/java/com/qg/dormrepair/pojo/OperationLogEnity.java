@@ -1,6 +1,8 @@
 package com.qg.dormrepair.pojo;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
@@ -8,6 +10,8 @@ import java.time.LocalDateTime;
  * 操作日志实体类
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class OperationLogEnity {
     private Long id;
     private String userAccount;//用户账号

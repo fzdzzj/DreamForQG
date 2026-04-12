@@ -47,10 +47,12 @@ public class RedisConfig {
         javaTimeModule.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(DATE_TIME_FORMATTER));
 
         objectMapper.registerModule(javaTimeModule); // 注册日期模块
+        //让所有字段都能序列化
+        //存 JSON 时带上类型信息，取出来能自动转回原对象
         objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
         objectMapper.activateDefaultTyping(objectMapper.getPolymorphicTypeValidator(), ObjectMapper.DefaultTyping.NON_FINAL);
 
-        // 使用新的构造函数，直接传入 ObjectMapper（替代已弃用的 setObjectMapper 方法）
+        // 使用新的构造函数，直接传入 ObjectMapper
         Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<>(objectMapper, Object.class);
 
         // 配置 Value 序列化

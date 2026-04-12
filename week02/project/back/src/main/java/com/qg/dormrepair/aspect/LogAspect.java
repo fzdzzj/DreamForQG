@@ -131,23 +131,15 @@ public class LogAspect {
             return null;
         }
 
-        // 遍历参数，找到Authorization头（String类型，格式：Bearer xxx）
-        String accessToken = null;
         for (Object arg : args) {
-            if (arg instanceof String && ((String) arg).startsWith("Bearer ")) {
-                accessToken = ((String) arg).substring(7);
-                break;
-            }
-            // 兜底：遍历所有String参数
             if (arg instanceof String) {
-                String strArg = (String) arg;
-                if (strArg.startsWith("Bearer ")) {
-                    accessToken = strArg.substring(7);
-                    break;
+                String token = (String) arg;
+                if (token.startsWith("Bearer ")) {
+                    return token.substring(7);
                 }
             }
         }
-        return accessToken;
+        return null;
     }
 
     /**
@@ -164,19 +156,22 @@ public class LogAspect {
             }
 
             try {
-                // 反射account字段
-                Field accountField = arg.getClass().getDeclaredField("account");
-                accountField.setAccessible(true);
-                Object accountValue = accountField.get(arg);
-                if (accountValue != null && accountValue instanceof String && !((String) accountValue).isBlank()) {
-                    return (String) accountValue;
+                // 反射获取 account 字段
+                Field field = arg.getClass().getDeclaredField("account");
+                field.setAccessible(true);
+                Object account = field.get(arg);
+
+                // 找到有效 account 直接返回
+                if (account instanceof String strAccount && !strAccount.isBlank()) {
+                    return strAccount;
                 }
-            } catch (NoSuchFieldException e) {
-                log.warn("参数对象无account字段：{}", arg.getClass().getName());
+            } catch (NoSuchFieldException ignored) {
+
             } catch (IllegalAccessException e) {
-                log.warn("反射获取account失败：{}", e.getMessage());
+                log.warn("获取account失败：{}", e.getMessage());
             }
         }
+
         return null;
     }
 

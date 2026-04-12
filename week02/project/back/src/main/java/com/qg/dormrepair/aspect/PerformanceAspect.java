@@ -36,7 +36,7 @@ public class PerformanceAspect {
         } catch (Throwable e) {
             long costTime = System.currentTimeMillis() - startTime;
             log.error("✗ 方法执行异常：{} | 耗时：{}ms | 错误：{}",
-                    methodName, costTime, e.getMessage());
+                    methodName, costTime, e.getMessage(),e);
             throw e;
         }
     }

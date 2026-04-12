@@ -18,7 +18,7 @@ import java.util.List;
 @Schema(description = "创建报修单请求参数")
 public class CreateOrderDTO {
 
-    @Schema(description = "宿舍楼栋", required = true, example = "A栋")
+    @Schema(description = "宿舍楼栋", example = "A栋")
     @NotBlank(message = "宿舍楼栋不能为空")
     String dormBuilding;
 

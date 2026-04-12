@@ -33,7 +33,7 @@ public class JwtException extends RuntimeException {
     }
 
     /**
-     * 异常信息 + 原始异常（保留异常栈）
+     * 异常信息 + 原始异常
      */
     public JwtException(String message, Throwable cause) {
         super(message, cause);
@@ -41,7 +41,7 @@ public class JwtException extends RuntimeException {
     }
 
     /**
-     * 自定义状态码 + 异常信息 + 原始异常（最完整，必加）
+     * 自定义状态码 + 异常信息 + 原始异常
      */
     public JwtException(Integer code, String message, Throwable cause) {
         super(message, cause);

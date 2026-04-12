@@ -1,6 +1,7 @@
 package com.qg.dormrepair.util;
 
 import com.qg.dormrepair.config.JwtProperties;
+import com.qg.dormrepair.exception.JwtException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
@@ -101,7 +102,7 @@ public class JwtUtils {
                     .getBody();
         } catch (Exception e) {
             log.error("Token 解析失败", e);
-            return null;
+            throw new JwtException("Token 解析失败");
         }
     }
 

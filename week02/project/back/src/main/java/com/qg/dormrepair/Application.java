@@ -27,7 +27,6 @@ public class Application {
      */
     public static void main(String[] args) {
         log.info("宿舍报修管理系统启动中");
-        log.warn(new Date().toString());
         SpringApplication.run(Application.class, args);
         log.info("宿舍报修管理系统启动完成，服务运行在 http://localhost:8080");
     }
